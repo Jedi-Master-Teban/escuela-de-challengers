@@ -1,0 +1,344 @@
+{
+  "Ahri": {
+    "role": "mage",
+    "description": "Ahri es una maga de burst que excele cazando objetivos y haciendo picks.",
+    "items": {
+      "core": ["3285", "4645", "3089"],
+      "situational": ["3157", "3102", "3165"],
+      "boots": ["3020", "3158"]
+    },
+    "runes": {
+      "primary": { "tree": 8200, "keystone": 8229, "runes": [8226, 8210, 8237] },
+      "secondary": { "tree": 8300, "runes": [8304, 8347] }
+    },
+    "tips": [
+      "Ludens Echo proporciona waveclear y burst adicional en peleas",
+      "Shadowflame es ideal contra enemigos con escudos",
+      "Zhonya te permite jugar agresivo con tu R sin morir"
+    ]
+  },
+  "Jinx": {
+    "role": "marksman",
+    "description": "Jinx es un ADC hypercarry que escala increíblemente fuerte a late game.",
+    "items": {
+      "core": ["3031", "3094", "3085"],
+      "situational": ["3072", "6676", "3036"],
+      "boots": ["3006"]
+    },
+    "runes": {
+      "primary": { "tree": 8000, "keystone": 8008, "runes": [8009, 9103, 8017] },
+      "secondary": { "tree": 8200, "runes": [8234, 8232] }
+    },
+    "tips": [
+      "Infinity Edge es esencial para maximizar el daño crítico",
+      "Runaan permite aplicar tu pasivo en varios enemigos",
+      "LDR contra tanques, Bloodthirster para sustain"
+    ]
+  },
+  "Leona": {
+    "role": "tank",
+    "description": "Leona es una support tank con engage increíble y mucho CC.",
+    "items": {
+      "core": ["3190", "3109", "3065"],
+      "situational": ["3075", "3143", "3742"],
+      "boots": ["3047", "3111"]
+    },
+    "runes": {
+      "primary": { "tree": 8400, "keystone": 8439, "runes": [8446, 8444, 8242] },
+      "secondary": { "tree": 8300, "runes": [8345, 8347] }
+    },
+    "tips": [
+      "Locket protege a tu equipo de burst damage",
+      "Knight's Vow para proteger a tu ADC",
+      "Thornmail contra equipos con mucho healing"
+    ]
+  },
+  "Yasuo": {
+    "role": "fighter",
+    "description": "Yasuo es un fighter/assassin con alto skill ceiling y potencial de carry.",
+    "items": {
+      "core": ["3153", "3031", "3091"],
+      "situational": ["3139", "3156", "6333"],
+      "boots": ["3006"]
+    },
+    "runes": {
+      "primary": { "tree": 8000, "keystone": 8010, "runes": [9111, 9104, 8017] },
+      "secondary": { "tree": 8400, "runes": [8444, 8242] }
+    },
+    "tips": [
+      "BORK te da sustain y burst contra tanques",
+      "Infinity Edge duplica tu chance de crítico",
+      "Wit's End contra composiciones AP"
+    ]
+  },
+  "Lux": {
+    "role": "mage",
+    "description": "Lux es una maga de burst de largo alcance con utility y burst.",
+    "items": {
+      "core": ["3285", "4645", "3089"],
+      "situational": ["3158", "3041", "3102"],
+      "boots": ["3020", "3158"]
+    },
+    "runes": {
+      "primary": { "tree": 8200, "keystone": 8229, "runes": [8226, 8210, 8237] },
+      "secondary": { "tree": 8300, "runes": [8304, 8347] }
+    },
+    "tips": [
+      "Ludens para waveclear y poke",
+      "Siempre intenta golpear tu Q antes del combo completo",
+      "Horizon Focus maximiza tu daño a distancia"
+    ]
+  },
+  "Garen": {
+    "role": "fighter",
+    "description": "Garen es un fighter tanky simple pero efectivo.",
+    "items": {
+      "core": ["3078", "3742", "3053"],
+      "situational": ["3143", "3065", "6333"],
+      "boots": ["3047", "3111"]
+    },
+    "runes": {
+      "primary": { "tree": 8000, "keystone": 8010, "runes": [9111, 9104, 8299] },
+      "secondary": { "tree": 8400, "runes": [8444, 8242] }
+    },
+    "tips": [
+      "Trinity Force es tu powerspike más grande",
+      "Dead Man's te ayuda a flanquear y ganar velocidad",
+      "Sterak's contra equipos con mucho burst"
+    ]
+  },
+  "Thresh": {
+    "role": "tank",
+    "description": "Thresh es el support más versátil con playmaking y utilidad.",
+    "items": {
+      "core": ["3190", "3109", "3871"],
+      "situational": ["3107", "3050", "3222"],
+      "boots": ["3117", "3111"]
+    },
+    "runes": {
+      "primary": { "tree": 8400, "keystone": 8439, "runes": [8463, 8444, 8242] },
+      "secondary": { "tree": 8300, "runes": [8306, 8347] }
+    },
+    "tips": [
+      "Locket protege a tu equipo en teamfights",
+      "Knight's Vow fortalece tu carry",
+      "Mobility boots para roaming agresivo"
+    ]
+  },
+  "Zed": {
+    "role": "assassin",
+    "description": "Zed es un assassin AD con alto burst y outplay potential.",
+    "items": {
+      "core": ["6693", "6692", "3814"],
+      "situational": ["3156", "3139", "6676"],
+      "boots": ["3158", "3047"]
+    },
+    "runes": {
+      "primary": { "tree": 8100, "keystone": 8112, "runes": [8143, 8138, 8135] },
+      "secondary": { "tree": 8300, "runes": [8347, 8304] }
+    },
+    "tips": [
+      "Prowler's Claw para más burst y gap close",
+      "Eclipse contra equipos tanky",
+      "Usar W-E-Q combo para poke seguro"
+    ]
+  },
+  "Caitlyn": {
+    "role": "marksman",
+    "description": "Caitlyn es un ADC de rango seguro con buen early game y poke.",
+    "items": {
+      "core": ["3031", "3085", "6676"],
+      "situational": ["3072", "3046", "3036", "3094"],
+      "boots": ["3006"]
+    },
+    "runes": {
+      "primary": { "tree": 8000, "keystone": 8008, "runes": [8009, 9103, 8017] },
+      "secondary": { "tree": 8300, "runes": [8234, 8232] }
+    },
+    "tips": [
+      "Headshot hace daño significativo con serangan",
+      "Usa tu E para trades seguros",
+      "Tu rango te permite dominar la mayoría de matchups"
+    ]
+  },
+  "Akali": {
+    "role": "assassin",
+    "description": "Akali es una assassin con gran movilidad y potencial de one-shot.",
+    "items": {
+      "core": ["6691", "3072", "6333"],
+      "situational": ["3161", "3139", "3814"],
+      "boots": ["3158", "3047"]
+    },
+    "runes": {
+      "primary": { "tree": 8100, "keystone": 8112, "runes": [8143, 8138, 8135] },
+      "secondary": { "tree": 8300, "runes": [8347, 8304] }
+    },
+    "tips": [
+      "Profane Chain es ideal para su kit",
+      "Mantén la energía para escapes",
+      "Usa el smokescreen para confundir"
+    ]
+  },
+  "Kaisa": {
+    "role": "marksman",
+    "description": "Kaisa es un hypercarry que escala muy fuerte con items.",
+    "items": {
+      "core": ["6672", "3124", "3085"],
+      "situational": ["3036", "3139", "3046"],
+      "boots": ["3006"]
+    },
+    "runes": {
+      "primary": { "tree": 8000, "keystone": 8008, "runes": [8009, 9103, 8017] },
+      "secondary": { "tree": 8200, "runes": [8234, 8232] }
+    },
+    "tips": [
+      "Evoluciona Q primero para más damage",
+      "Tu passivo hace daño burst contra aislados",
+      "Posiciónate para entrar en late game"
+    ]
+  },
+  "Malphite": {
+    "role": "tank",
+    "description": "Malphite es un tank con engage masivo y daño mágico.",
+    "items": {
+      "core": ["3065", "3075", "3742"],
+      "situational": ["3001", "3190", "3102"],
+      "boots": ["3047", "3111"]
+    },
+    "runes": {
+      "primary": { "tree": 8400, "keystone": 8439, "runes": [8446, 8444, 8242] },
+      "secondary": { "tree": 8300, "runes": [8345, 8347] }
+    },
+    "tips": [
+      "Frozen Heart reduce AS enemigo",
+      "Tu engage es excelente para teamfights",
+      "Sunfire provide tankiness constante"
+    ]
+  },
+  "Nami": {
+    "role": "support",
+    "description": "Nami es una support con heals, buffs y control.",
+    "items": {
+      "core": ["3107", "3179", "3504"],
+      "situational": ["3222", "3190", "3050"],
+      "boots": ["3117", "3158"]
+    },
+    "runes": {
+      "primary": { "tree": 8200, "keystone": 8230, "runes": [8210, 8224, 8237] },
+      "secondary": { "tree": 8400, "runes": [8444, 8463] }
+    },
+    "tips": [
+      "Tu E buffea ataques de aliados",
+      "Bubble tiene travel time, anticipa movimiento",
+      "Usa tu ult para disengage o engage"
+    ]
+  },
+  "LeeSin": {
+    "role": "fighter",
+    "description": "Lee Sin es un jungler con mucho skill expression y early game fuerte.",
+    "items": {
+      "core": ["6692", "3814", "3078"],
+      "situational": ["6333", "3139", "3072"],
+      "boots": ["3158", "3047"]
+    },
+    "runes": {
+      "primary": { "tree": 8000, "keystone": 8010, "runes": [9111, 9104, 8299] },
+      "secondary": { "tree": 8300, "runes": [8347, 8345] }
+    },
+    "tips": [
+      "Insec es tu move signature",
+      "Tu clear es saludable con shield",
+      "Power spike en mid game con items"
+    ]
+  },
+  "Orianna": {
+    "role": "mage",
+    "description": "Orianna es una control mage con utility y daño consistente.",
+    "items": {
+      "core": ["3116", "3020", "3165"],
+      "situational": ["3157", "3102", "3089"],
+      "boots": ["3020", "3158"]
+    },
+    "runes": {
+      "primary": { "tree": 8200, "keystone": 8229, "runes": [8226, 8210, 8237] },
+      "secondary": { "tree": 8300, "runes": [8304, 8347] }
+    },
+    "tips": [
+      "Usa tu bola para zonificar",
+      "Tu combo R+Q causa daño masivo",
+      "Positionamiento es clave"
+    ]
+  },
+  "Syndra": {
+    "role": "mage",
+    "description": "Syndra es una burst mage con control y execute.",
+    "items": {
+      "core": ["3116", "3020", "3089"],
+      "situational": ["3157", "3165", "3102"],
+      "boots": ["3020", "3158"]
+    },
+    "runes": {
+      "primary": { "tree": 8200, "keystone": 8229, "runes": [8226, 8210, 8237] },
+      "secondary": { "tree": 8100, "runes": [8138, 8135] }
+    },
+    "tips": [
+      "Maximiza Q para poke",
+      "Usa E para disengage",
+      "Tu R ejecuta objetivos bajos"
+    ]
+  },
+  "Pyke": {
+    "role": "support",
+    "description": "Pyke es un support assassin con engage y sustain.",
+    "items": {
+      "core": ["6693", "3074", "3142"],
+      "situational": ["3156", "3814", "3123"],
+      "boots": ["3117", "3158"]
+    },
+    "runes": {
+      "primary": { "tree": 8100, "keystone": 8112, "runes": [8143, 8138, 8135] },
+      "secondary": { "tree": 8300, "runes": [8347, 8313] }
+    },
+    "tips": [
+      "Tu Q carga lentamente pero causa daño masivo",
+      "Usa E para engages seguros",
+      "Tu R te da oro adicional"
+    ]
+  },
+  "Lulu": {
+    "role": "support",
+    "description": "Lulu es una support enchanter con protección y utility.",
+    "items": {
+      "core": ["3107", "3179", "3504"],
+      "situational": ["3222", "3110", "3190"],
+      "boots": ["3117", "3158"]
+    },
+    "runes": {
+      "primary": { "tree": 8200, "keystone": 8230, "runes": [8210, 8224, 8237] },
+      "secondary": { "tree": 8400, "runes": [8444, 8463] }
+    },
+    "tips": [
+      "Usa W para speed boost o polymorph",
+      "Protege a tu hypercarry",
+      "Tu R proporciona knockup y tankiness"
+    ]
+  },
+  "Elise": {
+    "role": "jungler",
+    "description": "Elise es una jungler con burst y early game dominante.",
+    "items": {
+      "core": ["3916", "3020", "3165"],
+      "situational": ["3157", "3089", "3102"],
+      "boots": ["3020", "3158"]
+    },
+    "runes": {
+      "primary": { "tree": 8100, "keystone": 8112, "runes": [8143, 8138, 8135] },
+      "secondary": { "tree": 8200, "runes": [8234, 8232] }
+    },
+    "tips": [
+      "Tu forma humana tiene range",
+      "Tu forma spider tiene burst",
+      "Gankea temprano para maximizar potencial"
+    ]
+  }
+}

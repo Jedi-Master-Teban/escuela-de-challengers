@@ -1,0 +1,58 @@
+{
+  "id": "lesson_1_2",
+  "title": "Mecánicas Básicas de Combate: Daño y Spacing",
+  "video_id": "L7qPSGmS9ik",
+  "duration": "12 min",
+  "summary": "Domina los fundamentos del intercambio de daño, la mitigación de resistencias y el arte del Tethering actualizado para la Season 16.",
+  "content_md": "# Mecánicas Básicas de Combate en la Season 16\n\nBienvenido a la base fundamental de League of Legends. Entender cómo se aplica y mitiga el daño es la diferencia entre un intercambio ganado y una muerte gris. En esta lección, desglosaremos la **teoría de daño** y el **posicionamiento avanzado** adaptado al meta actual de *Role Quests*.\n\n## 1. La Tríada de Daño y Mitigación\n\nTodo el daño en el juego se categoriza en tres tipos. Saber cuál estás recibiendo determina tu itemización defensiva.\n\n### Daño Físico (Color Rojo/Naranja)\n*   **Fuente**: Auto-ataques (ADCs), habilidades de AD Casters (Zed, Talon).\n*   **Mitigación**: **Armadura**. El cálculo es `Daño Recibido = Daño * (100 / (100 + Armadura))`.\n*   **Nota S16**: Con el 7º slot de objetos para ADCs, la armadura tiene rendimientos decrecientes más notorios en late game. Necesitas efectos de *Tenacidad* o *Reducción de Daño Plano* (como el item *Protoplasm Harness*) para sobrevivir.\n\n### Daño Mágico (Color Azul/Violeta)\n*   **Fuente**: Magos, habilidades de AP, algunos tanques.\n*   **Mitigación**: **Resistencia Mágica (MR)**.\n*   **Nota S16**: Los Mid Laners ahora obtienen botas con penetración temprana gracias a las *Role Quests*, haciendo que los primeros dragones sean letales si no tienes al menos un Manto de Anulación.\n\n### Daño Verdadero (Color Blanco)\n*   **Fuente**: Vayne, Fiora, Smite, Ignite, y la nueva mecánica de **Cristales de Torreta**.\n*   **Mitigación**: **Ninguna**. No se reduce con armadura ni resistencia. La única defensa es tener más Vida (HP) o Escudos.\n\n## 2. Anatomía del Auto-Ataque\n\nPara optimizar tu DPS (Daño por Segundo), debes entender las tres fases de un ataque básico:\n\n1.  **Wind-up (Preparación)**: No cancelable. Es el tiempo antes de que salga el proyectil.\n2.  **Active Frame (Disparo)**: El momento en que el daño se aplica.\n3.  **Back-swing (Recuperación)**: Tiempo muerto después del disparo. **¡Cancela esto!** Moverte inmediatamente después de que salga el proyectil (*Orb Walking*) te permite reposicionarte y perseguir mejor.\n\n## 3. Spacing y Tethering (\"El Hilo\")\n\nEl **Tethering** es mantener una distancia constante con tu oponente, justo al límite de tu rango máximo.\n\n*   **La Regla del Hilo**: Imagina un hilo tenso entre tú y el enemigo. Si él avanza, tú retrocedes para mantener el hilo tenso. Si él retrocede, tú avanzas.\n*   **Uso de Faelights**: En la S16, usa los hongos de visión (*Faelights*) en el río para extender tu rango de amenaza visible. Si el enemigo no tiene visión ahí, tu \"zona de amenaza\" es efectivamente mayor porque no pueden reaccionar a tiempo.\n\n## 4. Hechizos de Invocador Críticos (Update S16)\n\n*   **Teleport (TP)**: Para Top Laners, completar la misión transforma el TP. Ahora otorga un **Escudo del 30% de HP** al aterrizar si ya lo tenías, o desbloquea *Unleashed Teleport* si no lo llevabas. Úsalo para flancos agresivos, no solo para volver a línea.\n*   **Smite**: El daño ha escalado a **1400** en Tier Final. Asegurar objetivos requiere un cálculo preciso de tu combo de daño + Smite para superar este umbral.",
+  "cheat_sheet_md": "## Resumen de Combate S16\n\n### 🎯 Tipos de Daño\n* **Físico**: Se reduce con Armadura. (ADCs, Asesinos AD)\n* **Mágico**: Se reduce con Resistencia Mágica. (Magos, Soportes AP)\n* **Verdadero**: Ignora resistencias. Solo HP lo contrarresta. (Vayne, Smite, Ignite)\n\n### 💡 Regla de Oro del Spacing\n* Mantén el **\"Hilo Tenso\"**. Copia el movimiento del enemigo para mantenerte siempre a tu rango máximo de ataque.\n* **Orb Walking**: Ataca -> Muévete -> Ataca. Nunca te quedes quieto disparando.\n\n### ⚙️ Actualizaciones Clave S16\n* **TP de Top Lane**: Ahora da escudo al llegar (Post-Misión).\n* **Smite**: Daño máximo aumentado a 1400.\n* **Faelights**: Úsalos para extender tu zona de presión en el río.",
+  "quiz": [
+    {
+      "question": "¿Cuál es la única forma efectiva de 'mitigar' el Daño Verdadero (True Damage)?",
+      "options": [
+        "Comprando Armadura",
+        "Comprando Resistencia Mágica",
+        "Aumentando la Vida Máxima (HP) o usando Escudos",
+        "Usando el hechizo Extenuar (Exhaust)"
+      ],
+      "correct_index": 2,
+      "explanation": "El Daño Verdadero ignora todas las resistencias (Armadura/MR). La única forma de sobrevivir a él es tener más salud total para absorberlo o escudos temporales."
+    },
+    {
+      "question": "En la Season 16, ¿qué bonificación recibe el Teleport (TP) de los Top Laners al completar su Role Quest?",
+      "options": [
+        "Reducción de enfriamiento del 50%",
+        "Un escudo del 30% de su HP Máxima al llegar o desbloqueo de Unleashed TP",
+        "Velocidad de movimiento al salir de base",
+        "Daño verdadero en el primer ataque después de teleportarse"
+      ],
+      "correct_index": 1,
+      "explanation": "La actualización de la Season 16 premia a los Top Laners con mayor supervivencia en flancos (Escudo) o versatilidad de mapa (Unleashed TP) tras completar su misión."
+    },
+    {
+      "question": "¿Qué acción debes realizar durante la fase de 'Back-swing' de un auto-ataque?",
+      "options": [
+        "Esperar a que termine la animación",
+        "Lanzar un hechizo de invocador",
+        "Cancelar la animación moviéndote (Orb Walking)",
+        "Presionar la tecla S para detenerte"
+      ],
+      "correct_index": 2,
+      "explanation": "El Back-swing es tiempo muerto donde no haces daño. Cancelarlo con un comando de movimiento te permite reposicionarte y optimizar tu DPS."
+    }
+  ],
+  "resources": [
+    {
+      "title": "Patch 26.1 Notes Breakdown - Blitz.gg",
+      "url": "https://blitz.gg/lol/article/league-of-legends-patch-notes-breakdown-26-1"
+    },
+    {
+      "title": "The ONLY TRADING GUIDE You'll EVER NEED - Skill Capped",
+      "url": "https://www.youtube.com/watch?v=L7qPSGmS9ik"
+    },
+    {
+      "title": "Wiki: Damage Mechanics & Modifiers",
+      "url": "https://leagueoflegends.fandom.com/wiki/Damage"
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "id": "lesson_02_02",
+  "title": "Dominando los Objetivos: Dragones y la Nueva Durabilidad en S16",
+  "video_id": "eLJSFBAe320",
+  "duration": "12 min",
+  "summary": "Aprende cómo la mecánica de 'Dragon Vengeance' y los cambios de estadísticas en la Season 16 transforman la toma de dragones de un objetivo de 'snowball' a una herramienta de 'comeback'.",
+  "content_md": "# La Nueva Era de los Dragones en Season 16\n\nEn la Temporada 16, Riot ha redefinido el control de objetivos. Ya no se trata solo de quién llega primero, sino de quién puede sobrevivir a la nueva durabilidad de los monstruos. El cambio más radical es el sistema de **Dragon Vengeance**, diseñado para castigar el *snowball* descontrolado.\n\n## 1. Cambios en Estadísticas Base\n\nOlvida lo que sabías sobre el daño de burst al dragón. La durabilidad ha aumentado globalmente para evitar que los junglas los eliminen en segundos durante el juego temprano.\n\n*   **Aumento de Vida Efectiva:** Todos los dragones tienen un **+15% de HP base** comparado con la S15.\n*   **El Rework de Montaña:** El Dragón de Montaña ya no tiene resistencias (Armadura/RM) ridículamente altas. Ahora es un saco de vida masivo. Esto significa que la penetración de armadura es menos efectiva contra él, y el daño porcentual por vida máxima (como la Q de Vayne o la pasiva de Brand) es rey.\n\n## 2. Mecánica Crítica: Dragon Vengeance (Venganza del Dragón)\n\nEsta es la mecánica que separa a los Challengers de los Diamantes. El juego ahora **penaliza** al equipo que intenta asegurar el Alma del Dragón.\n\n### ¿Cómo funciona?\nEl dragón gana una reducción de daño (Damage Reduction) basada en cuántos dragones ya ha matado tu equipo. Si tu equipo va 3-0 en dragones y quiere el cuarto para el Alma, el dragón se vuelve casi inmortal contra ustedes.\n\n**Escalado de Reducción de Daño (S16):**\n*   1 Dragón asegurado: **15% reducción de daño**.\n*   2 Dragones asegurados: **30% reducción de daño**.\n*   3 Dragones asegurados: **45% reducción de daño**.\n\n### Implicación Estratégica\nSi estás ganando, tardarás casi el **doble de tiempo** en hacer el Dragón del Alma. Esto regala al equipo enemigo una ventana de tiempo masiva para rotar, posicionarse y forzar una pelea 5v5 donde tú estás desgastado por el dragón.\n\n## 3. Adaptaciones de Macrogame\n\n1.  **Prioridad de Línea Absoluta:** Con el aumento de vida, hacer un dragón solo (Solo-bolo) es suicida en el 90% de los casos antes del minuto 15. Necesitas a tu Bot y Mid con prioridad para zonear.\n2.  **Jugar para el Robo:** Si vas perdiendo, tienes una ventaja matemática. El dragón **NO** reduce tu daño (porque tienes 0 cargas). Tu Smite y tu burst pegan al 100%, mientras que el enemigo pega al 55%. Guardar recursos para un robo de dragón es más viable que nunca.",
+  "cheat_sheet_md": "## Resumen Rápido: Dragones S16\n\n### 🎯 Cifras Clave (Patch 26.1)\n*   **HP Base:** +15% en todos los dragones.\n*   **Dragon Vengeance:** Tu equipo hace **-15% / -30% / -45%** de daño al dragón por cada carga que ya tengan.\n*   **Dragón de Montaña:** Perdió resistencias, ganó mucha Vida Plana.\n\n### 💡 Reglas de Oro\n*   **Nunca solees:** El tiempo que pierdes equivale a 2 campamentos de jungla y medio.\n*   **Defensa de Alma:** Si el enemigo busca el Alma, fuérzalos a pegarle al dragón primero. Se desgastarán y tardarán mucho, dándote la ventaja en la pelea.\n*   **Smite Fight:** El equipo que va perdiendo tiene ventaja en el Smite fight porque no sufren la reducción de daño.",
+  "quiz": [
+    {
+      "question": "¿Cuál es el cambio principal en las estadísticas defensivas del Dragón de Montaña en la Season 16?",
+      "options": [
+        "Ganó más Armadura y Resistencia Mágica.",
+        "Ahora es inmune al daño verdadero.",
+        "Perdió sus resistencias (Armor/MR) y ganó un aumento masivo de Vida Plana.",
+        "Refleja el 20% del daño recibido."
+      ],
+      "correct_index": 2,
+      "explanation": "En el parche 26.1, Riot eliminó las altas resistencias del Dragón de Montaña y las convirtió en Vida Plana (+15% HP base extra) para estandarizar la velocidad de limpieza entre clases."
+    },
+    {
+      "question": "Si tu equipo ya tiene 3 dragones y está intentando asegurar el Alma (4to dragón), ¿cuánta reducción de daño aplica la mecánica 'Dragon Vengeance' contra ustedes?",
+      "options": [
+        "0% (No aplica al equipo líder)",
+        "20%",
+        "30%",
+        "45%"
+      ],
+      "correct_index": 3,
+      "explanation": "La mecánica escala a 15% / 30% / 45%. Al buscar el cuarto dragón (teniendo 3), sufren la penalización máxima del 45% de reducción de daño."
+    },
+    {
+      "question": "¿Por qué es matemáticamente más fácil robar un dragón para el equipo que va perdiendo en la S16?",
+      "options": [
+        "El Smite del equipo perdedor hace más daño verdadero.",
+        "El equipo perdedor no sufre la reducción de daño de 'Dragon Vengeance', por lo que su burst es 100% efectivo.",
+        "Los dragones hacen menos daño al equipo con menos oro.",
+        "El equipo ganador no puede usar Smite si tiene 3 dragones."
+      ],
+      "correct_index": 1,
+      "explanation": "Dragon Vengeance solo reduce el daño del equipo que tiene acumulaciones de dragones. El equipo que va perdiendo (0 dragones) inflige daño real completo, facilitando el robo."
+    }
+  ],
+  "resources": [
+    {
+      "title": "Notas Oficiales del Parche 26.1",
+      "url": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-26-1-notes/"
+    },
+    {
+      "title": "Análisis de Cambios S16 - YouTube",
+      "url": "https://www.youtube.com/watch?v=eLJSFBAe320"
+    },
+    {
+      "title": "Wiki: Mecánica Dragon Slayer",
+      "url": "https://leagueoflegends.fandom.com/wiki/Dragon_Slayer"
+    }
+  ]
+}

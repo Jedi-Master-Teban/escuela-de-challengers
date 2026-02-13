@@ -1,0 +1,58 @@
+{
+  "id": "lesson_1_3",
+  "title": "1.3 Estadísticas de Campeones: Fundamentos y Season 16",
+  "video_id": "xuyan47Df_k",
+  "duration": "12 min",
+  "summary": "Domina la matemática detrás del juego: desde el nuevo sistema 'Feats of Strength' hasta los cálculos exactos de Lethality y los Soft Caps de velocidad en la Season 16.",
+  "content_md": "# 1.3 Estadísticas de Campeones (Stats)\n\nEntender las estadísticas no se trata solo de saber qué hace cada número, sino de comprender los **puntos de inflexión** (*breakpoints*) donde tu oro se vuelve más eficiente. En la **Season 16**, esto es más crítico que nunca debido a la introducción de las *Feats of Strength*.\n\n## 1. El Nuevo Meta: Feats of Strength y Botas Tier 3\n\nEl cambio más grande en la historia reciente de las estadísticas es el desbloqueo de las **Botas de Nivel 3**. Estas no se compran con oro, se ganan con macrojuego.\n\nPara desbloquear las mejoras estadísticas de tus botas, debes completar **2 de los 3 objetivos** siguientes:\n*   **Primera Sangre**\n*   **Primera Torre**\n*   **3 Monstruos Épicos** (Larvas del Vacío cuentan para este total)\n\nUna vez desbloqueadas, las estadísticas de tus botas cambian radicalmente el *stat-checking*:\n*   **Spellslinger's Shoes:** Otorgan Penetración Mágica Plana (+19) Y Porcentual (+10%), eliminando la necesidad temprana de Void Staff.\n*   **Crimson Lucidity:** Rompen la economía de *Ability Haste* al reducir también el CD de los Hechizos de Invocador.\n\n## 2. Estadísticas Ofensivas: Lethality vs. Penetración\n\n### Lethality (Letalidad)\nDesde la estandarización, la Lethality es **Penetración de Armadura Plana (1:1)**. Ya no escala con tu nivel. \n\n*   **Uso Óptimo:** Extremadamente eficiente contra objetivos con <80 de Armadura.\n*   **El Error Común:** Comprar Lethality cuando el enemigo ya tiene *Plated Steelcaps* y un ítem de armadura (aprox. 120+ armor). Aquí, la matemática favorece a la Penetración Porcentual (LDR/Serylda/Mortal Reminder).\n\n### Ability Haste (AH)\nEl AH escala linealmente: **1 AH = 1% más de lanzamientos de hechizos** sobre el tiempo base.\n\n*   50 AH = 33% Cooldown Reduction (CDR)\n*   100 AH = 50% CDR\n*   **Nota de Coach:** No busques superar los 100 AH a menos que tu campeón tenga sinergias específicas (como Ezreal o Hwei), ya que el costo de oportunidad de perder daño o resistencia es alto.\n\n## 3. Estadísticas Defensivas y Utilidad\n\n### Vida Efectiva (EHP)\nLa Armadura y Resistencia Mágica multiplican el valor de cada punto de vida.\n*   **Regla de Oro:** Por cada 100 de Resistencia, necesitas aprox. 1,000 HP bonus para que la inversión sea matemáticamente eficiente.\n\n### Velocidad de Movimiento (MS): Los Soft Caps\nLa velocidad no es infinita; el juego te penaliza si corres demasiado rápido sin modificadores especiales.\n1.  **Soft Cap 1 (415 MS):** La velocidad excedente se reduce al 80%.\n2.  **Soft Cap 2 (490 MS):** La velocidad excedente se reduce al 50%.\n\n*Excepción S16:* Las botas **Forever Forward** (Tier 3) aplican un multiplicador del 10% *al final* de la fórmula, mitigando estos caps.\n\n## 4. El Factor Atakhan\n\nLa aparición de **Atakhan** (minuto 20) actúa como un multiplicador global de estadísticas si tu equipo lo asegura. El buff *Ruinous Atakhan* aumenta un 25% la efectividad de las recompensas de monstruos épicos, lo que puede disparar tus estadísticas de AD/AP (Dragón Infernal) o Tenacidad (Dragón Chemtech) en medio de la partida.",
+  "cheat_sheet_md": "## 🛡️ Cheat Sheet: Matemáticas de la Grieta\n\n### 🎯 Breakpoints de Penetración\n* **Lethality:** Rey absoluto contra objetivos con **<80 Armor** (ADC, Magos, Enchanters).\n* **% Pen:** Obligatorio en cuanto el enemigo supera los **110-120 Armor**.\n* **Tier 3 Boots (Spellslinger):** Otorgan Penetración Híbrida (Plana + %). Prioriza objetivos de mapa para desbloquearlas.\n\n### 🏃‍♂️ Soft Caps de Velocidad\n* **415 MS:** Primer límite (Eficacia del 80%).\n* **490 MS:** Segundo límite (Eficacia del 50%).\n* *Tip:* Los bonos porcentuales (como la E de Zilean o Botas Tier 3) son más valiosos que la MS plana una vez pasas de 415.\n\n### ⚔️ Feats of Strength (Requisitos)\nNecesitas **2 de 3** para evolucionar tus botas:\n1. Primera Sangre\n2. Primera Torre\n3. Matar 3 Monstruos Épicos (Dragones, Heraldos, Larvas, Barón, Atakhan)",
+  "quiz": [
+    {
+      "question": "¿Qué combinación de objetivos desbloquea las Botas de Nivel 3 (Feats of Strength)?",
+      "options": [
+        "Primera Sangre y Primera Torre únicamente.",
+        "Cualquier combinación de 2: Primera Sangre, Primera Torre o 3 Monstruos Épicos.",
+        "Matar al Barón Nashor y obtener el Alma de Dragón.",
+        "Alcanzar el nivel 14 y tener 3 ítems completos."
+      ],
+      "correct_index": 1,
+      "explanation": "El sistema 'Feats of Strength' introducido en la pre-season requiere completar 2 de 3 objetivos específicos (First Blood, First Brick, 3 Epic Monsters) para evolucionar las botas automáticamente."
+    },
+    {
+      "question": "En la Season 16, ¿cómo se calcula la Lethality respecto a la Penetración de Armadura?",
+      "options": [
+        "La Lethality escala con el nivel del campeón (0.6 - 1.0 por nivel).",
+        "La Lethality ignora la armadura base pero no la bonus.",
+        "La Lethality es Penetración de Armadura Plana directa (1 punto = 1 armadura ignorada).",
+        "La Lethality se aplica antes que la reducción de armadura porcentual."
+      ],
+      "correct_index": 2,
+      "explanation": "Desde los cambios estandarizados (mantenidos en la S16), la Lethality ya no escala con nivel; 10 de Lethality ignoran 10 de Armadura del objetivo inmediatamente."
+    },
+    {
+      "question": "¿A partir de qué valor de Velocidad de Movimiento (MS) se aplica el segundo y más severo 'Soft Cap' (50% de eficacia)?",
+      "options": [
+        "415 MS",
+        "450 MS",
+        "490 MS",
+        "550 MS"
+      ],
+      "correct_index": 2,
+      "explanation": "El primer cap (reducido al 80%) empieza en 415 MS. El segundo cap, donde la velocidad adicional se reduce a la mitad (50%), comienza al superar los 490 MS."
+    }
+  ],
+  "resources": [
+    {
+      "title": "Guía Oficial: Feats of Strength & Boots Upgrades",
+      "url": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-15-1-notes/"
+    },
+    {
+      "title": "Wiki: Champion Statistics & Formulas",
+      "url": "https://leagueoflegends.fandom.com/wiki/Champion_statistic"
+    },
+    {
+      "title": "Lolalytics: Tier List & Item Stats S16",
+      "url": "https://lolalytics.com/"
+    }
+  ]
+}

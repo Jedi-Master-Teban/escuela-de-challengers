@@ -1,0 +1,44 @@
+{
+  "id": "lesson_1_1",
+  "title": "Fundamentos de League of Legends: Objetivos, Mapa y Roles (Season 16)",
+  "video_id": "VIDEO_ID_HOLDER",
+  "duration": "10 min",
+  "summary": "Domina los pilares de la Grieta del Invocador en la Temporada 16. Aprende la nueva estructura del mapa, las Role Quests revolucionarias que permiten nivel 20 en Top, y cómo la economía define tu condición de victoria.",
+  "content_md": "# Introducción a League of Legends: La Grieta en la Season 16\n\nBienvenido a la Escuela de Challengers. Si estás aquí, es porque quieres dejar de jugar por inercia y empezar a jugar con **fundamentos**. League of Legends en la Season 16 (2026) ha sufrido una de las transformaciones más drásticas en su historia con la introducción de las **Role Quests**. Ya no basta con saber matar súbditos; ahora debes entender cómo tu rol específico rompe las reglas tradicionales del juego.\n\nEn esta lección, desglosaremos la estructura fundamental de la Grieta del Invocador, pero con el enfoque analítico que separa a un Plata de un Diamante. Olvida los tutoriales básicos; vamos a hablar de números, condiciones de victoria y eficiencia.\n\n## 1. El Objetivo Absoluto: El Nexus\n\nParece obvio, pero el 90% de los jugadores en Elo Bajo lo olvida: **League of Legends es un juego de demolición, no de duelo a muerte.**\n\nTu objetivo único es destruir el **Nexus enemigo**. Todo lo demás —las kills, el Barón, los dragones— son solo herramientas para facilitar esa demolición. En la Season 16, el Nexus tiene estadísticas específicas que debes conocer:\n\n* **Vida:** 5,500 HP\n* **Regeneración:** 20 HP por segundo\n* **Protección:** Invulnerable hasta destruir los inhibidores y las dos Torretas de Nexus.\n\n**Dato de Coach:** He visto partidas perderse porque un ADC decidió perseguir una kill en la fuente en lugar de golpear el Nexus. 5,500 de vida pueden desaparecer en 3 segundos con un equipo enfocado. No juegues con la comida.\n\n## 2. Estructura del Mapa: Summoner's Rift S16\n\nEl mapa se divide en tres carriles y la jungla. Entender la geometría es vital.\n\n* **Top Lane (La Isla):** Carril largo y aislado. En la Season 16, es el dominio de los \"Raid Bosses\".\n* **Mid Lane (El Centro de Control):** El carril más corto. La oleada de súbditos llega antes aquí, lo que permite a los Midlaners limpiar y moverse (roam) a otras líneas.\n* **Bot Lane (El Duo):** Compartida por ADC y Support. Es el carril con mayor volatilidad debido a la presencia de 4 jugadores y el control del Dragón.\n* **La Jungla:** La red de recursos neutrales que conecta todo. En S16, el mapa tiene una temática visual de Demacia y nuevos puntos de visión llamados **Faelights**.\n\n## 3. La Revolución de la Season 16: Roles y Role Quests\n\nAquí es donde la teoría cambia drásticamente este año. Riot ha implementado **Role Quests** que otorgan poderes únicos al completar objetivos específicos (alrededor de 1200-1350 puntos de quest). Si ignoras esto, estás jugando en desventaja.\n\n### Top Lane: El Ascenso al Nivel 20\nEsta es la mecánica más rota de la temporada. Al completar su quest (1200 puntos), los Toplaners desbloquean el límite de nivel estándar.\n* **El Buff:** +600 XP instantánea y **+12.5% de XP** de todas las fuentes permanentemente.\n* **El Resultado:** Puedes llegar a **Nivel 20**. Esto significa estadísticas base superiores a cualquier otro jugador en la partida. Un Jax nivel 20 contra un ADC nivel 16 no es una pelea, es una ejecución.\n\n### Jungle: Velocidad y Eficiencia\nLos junglers ahora completan su ítem con **35 cargas** (pet treats).\n* **El Buff:** Velocidad de movimiento masiva en jungla/río y un Smite que escala hasta 1400 de daño verdadero.\n\n### Mid Lane: Movilidad Táctica\nLa quest de Mid requiere 1350 puntos.\n* **El Buff:** Tus botas Tier 2 evolucionan automáticamente a **Tier 3** (mejores stats). Además, obtienes un **Recall Empoderado** (4 segundos en lugar de 8).\n\n### ADC: El Séptimo Objeto\nLa fantasía de hipercarry definitiva.\n* **El Buff:** Al completar la quest, las botas se mueven a un slot especial de \"Baratija\", liberando tu inventario para un **7º objeto completo**.\n\n### Support: Visión Económica\n* **El Buff:** Los **Control Wards** bajan de precio a 40g y puedes llevar 2 en tu slot de objeto de soporte.\n\n## 4. Economía Básica y Sistema de Oro\n\nEl oro compra objetos, los objetos dan estadísticas, las estadísticas ganan peleas.\n\n* **Last Hitting:**\n  * Melee: ~21g\n  * Caster: ~14g\n  * Cannon: 60-90g (¡No falles este!)\n* **Oro Pasivo:** Comienza al minuto **1:05**.\n* **Placas de Torre (S16):** Ahora otorgan +40g si estás en tu rol asignado.\n\n## 5. Errores Comunes de ELO Bajo\n\n1. **Ignorar la Role Quest:** Veo Toplaners que rotan demasiado pronto y no completan su quest. Tu condición de victoria es llegar a Nivel 20.\n2. **Mala gestión del HUD:** Juegan con el HUD al 100% de tamaño y el minimapa al 33%. **Invierte esto.**\n3. **Desincronización de Backs:** Los Midlaners con el nuevo recall de 4 segundos a menudo baitean a su equipo.\n\n## Conclusión\n\nLeague of Legends en 2026 premia la especialización. Entender estas mecánicas te da una hoja de ruta clara para la partida, más allá de simplemente \"matar enemigos\".",
+  "cheat_sheet_md": "## Resumen Rápido: Season 16 Mechanics\n\n### 🎯 Objetivo\n* **Nexus:** 5,500 HP (Regen 20/s). Destruirlo gana la partida instantáneamente.\n\n### 🗺️ Role Quests (S16)\n* **Top Lane:** Desbloquea **Nivel 20**. +12.5% XP total. TP mejorado.\n* **Jungle:** Quest completa a los **35 treats**. Smite 1400 dmg.\n* **Mid Lane:** Botas **Tier 3** gratis. Recall de **4 segundos**.\n* **ADC:** **7º Slot de Item** (botas se mueven). +2g/minion permanente.\n* **Support:** Control Wards a **40g**. Slot para 2 wards.\n\n### 💰 Economía\n* **Inicio Oro Pasivo:** 1:05\n* **Minions:** Melee (21g), Caster (14g), Cannon (60-90g)\n* **Torres:** Las placas dan bonificación de oro si estás en tu rol asignado.\n\n### ⚙️ Configuración Recomendada\n* **Minimapa:** Tamaño > 80%\n* **HUD:** Tamaño < 40%\n* **Chat:** Desactivado (Opcional, pero recomendado para focus).",
+  "quiz": [
+    {
+      "question": "¿Cuál es la característica única que obtiene la Top Lane al completar su Role Quest en la Season 16?",
+      "options": [
+        "Un séptimo slot para objetos",
+        "Capacidad de alcanzar el Nivel 20 y +12.5% de XP",
+        "Botas Tier 3 gratuitas",
+        "Reducción del tiempo de Recall a 4 segundos"
+      ],
+      "correct_index": 1,
+      "explanation": "En la Season 16, la Top Lane tiene la capacidad exclusiva de superar el límite de nivel 18, llegando hasta el 20 y ganando un bono masivo de experiencia."
+    },
+    {
+      "question": "¿A qué minuto exacto comienza la generación de oro pasivo en la Season 16?",
+      "options": [
+        "1:30",
+        "1:50",
+        "1:05",
+        "0:00"
+      ],
+      "correct_index": 2,
+      "explanation": "Para acelerar el ritmo del juego, la generación de oro pasivo se adelantó al minuto 1:05 en la actualización de la temporada."
+    },
+    {
+      "question": "¿Cuál es la recompensa principal de la Role Quest para los ADCs?",
+      "options": [
+        "Smite mejorado a 1200 de daño",
+        "Control Wards a mitad de precio",
+        "Un séptimo slot de objeto (moviendo las botas al slot de trinket)",
+        "Teleportación con escudo mejorado"
+      ],
+      "correct_index": 2,
+      "explanation": "Los ADCs desbloquean su máximo potencial de carry obteniendo un séptimo espacio para objetos ofensivos, moviendo sus botas a un slot especial."
+    }
+  ]
+}

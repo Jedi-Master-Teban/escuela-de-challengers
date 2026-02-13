@@ -1,0 +1,82 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-02-07",
+  "modules": [
+    {
+      "id": "fundamentos",
+      "title": "Fundamentos",
+      "description": "Aprende los conceptos básicos del juego: CS, trading, wave management.",
+      "icon": "🎮",
+      "order": 1,
+      "lessons": [
+        {
+          "id": "lesson_1_1",
+          "title": "Fundamentos de League of Legends: Objetivos, Mapa y Roles (S16)",
+          "path": "fundamentos/intro-league-of-legends.json",
+          "duration_minutes": 10,
+          "difficulty": "beginner"
+        },
+        {
+          "id": "lesson_1_2",
+          "title": "Mecánicas Básicas de Combate: Daño y Spacing",
+          "path": "fundamentos/mecanicas-basicas.json",
+          "duration_minutes": 12,
+          "difficulty": "beginner"
+        },
+        {
+          "id": "lesson_1_3",
+          "title": "Estadísticas de Campeones: Fundamentos y Season 16",
+          "path": "fundamentos/estadisticas-de-campeones.json",
+          "duration_minutes": 12,
+          "difficulty": "beginner"
+        },
+        {
+          "id": "lesson_1_4",
+          "title": "Sistema de Runas: Meta y Optimización (S16)",
+          "path": "fundamentos/sistema-de-runas.json",
+          "duration_minutes": 14,
+          "difficulty": "intermediate"
+        }
+      ]
+    },
+    {
+      "id": "macro",
+      "title": "Macro Juego",
+      "description": "Domina el mapa: rotaciones, objetivos, visión y toma de decisiones.",
+      "icon": "🗺️",
+      "order": 2,
+      "lessons": [
+        {
+          "id": "lesson_2_1",
+          "title": "Estructuras Defensivas S16: Placas, Cristales y Asedio",
+          "path": "macro-juego/estructuras-defensivas.json",
+          "duration_minutes": 14,
+          "difficulty": "intermediate"
+        },
+        {
+          "id": "lesson_2_2",
+          "title": "Dominando los Objetivos: Dragones y la Nueva Durabilidad",
+          "path": "macro-juego/dominando-los-objetivos.json",
+          "duration_minutes": 12,
+          "difficulty": "intermediate"
+        }
+      ]
+    },
+    {
+      "id": "mecanicas",
+      "title": "Mecánicas Avanzadas",
+      "description": "Combos, animation cancels y técnicas avanzadas por campeón.",
+      "icon": "⚔️",
+      "order": 3,
+      "lessons": []
+    },
+    {
+      "id": "mentalidad",
+      "title": "Mentalidad",
+      "description": "Tilt control, review de partidas y mejora continua.",
+      "icon": "🧠",
+      "order": 4,
+      "lessons": []
+    }
+  ]
+}

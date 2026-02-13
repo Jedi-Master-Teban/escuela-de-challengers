@@ -1,0 +1,42 @@
+{
+  "Ahri": {
+    "role": "Mage",
+    "damageType": "Magic",
+    "rangeType": "Ranged",
+    "utility": ["CC", "Mobility"],
+    "scaling": "Mid-Late",
+    "difficulty": 2
+  },
+  "Darius": {
+    "role": "Fighter",
+    "damageType": "Physical",
+    "rangeType": "Melee",
+    "utility": ["CC", "Execute"],
+    "scaling": "Mid",
+    "difficulty": 1
+  },
+  "Amumu": {
+    "role": "Tank",
+    "damageType": "Magic",
+    "rangeType": "Melee",
+    "utility": ["Hard CC", "Engage"],
+    "scaling": "Late",
+    "difficulty": 1
+  },
+  "Jinx": {
+    "role": "Marksman",
+    "damageType": "Physical",
+    "rangeType": "Ranged",
+    "utility": ["Reset"],
+    "scaling": "Late",
+    "difficulty": 2
+  },
+  "Thresh": {
+    "role": "Support",
+    "damageType": "Mixed",
+    "rangeType": "Ranged",
+    "utility": ["Hard CC", "Disengage", "Engage"],
+    "scaling": "Utility",
+    "difficulty": 3
+  }
+}

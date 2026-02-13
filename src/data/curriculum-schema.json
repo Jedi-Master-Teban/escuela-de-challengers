@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Lesson",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "video_id": {
+      "type": "string"
+    },
+    "module_id": {
+      "type": "string"
+    },
+    "order": {
+      "type": "number"
+    },
+    "quiz": {
+      "type": "object",
+      "properties": {
+        "question": {
+          "type": "string"
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "correct_answer": {
+          "type": "number"
+        }
+      },
+      "required": ["question", "options", "correct_answer"]
+    }
+  },
+  "required": ["id", "title", "description", "video_id", "module_id", "order", "quiz"]
+}

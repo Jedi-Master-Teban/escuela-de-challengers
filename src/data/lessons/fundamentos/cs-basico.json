@@ -1,0 +1,57 @@
+{
+  "id": "fundamentos-cs-basico",
+  "title": "CS Básico: Domina el Last Hit",
+  "description": "Aprende las mecánicas fundamentales del last hitting y cómo maximizar tu oro en los primeros minutos de la partida.",
+  "video_id": "dQw4w9WgXcQ",
+  "duration_minutes": 12,
+  "difficulty": "beginner",
+  "tags": ["cs", "last-hit", "fundamentos", "oro"],
+  "quiz": [
+    {
+      "id": "q1",
+      "question": "¿Cuánto oro otorga un minion cuerpo a cuerpo (melee) en promedio?",
+      "options": [
+        "14 de oro",
+        "21 de oro",
+        "25 de oro",
+        "30 de oro"
+      ],
+      "correct_answer": 1,
+      "explanation": "Los minions melee otorgan aproximadamente 21 de oro. Este valor aumenta ligeramente conforme avanza la partida."
+    },
+    {
+      "id": "q2",
+      "question": "¿Cuál es la mejor técnica para practicar CS sin presión?",
+      "options": [
+        "Jugar partidas ranked",
+        "Modo práctica sin items ni habilidades",
+        "Ver streams de profesionales",
+        "Usar scripts de entrenamiento"
+      ],
+      "correct_answer": 1,
+      "explanation": "El modo práctica sin items ni habilidades te obliga a dominar el timing exacto del auto-ataque base de tu campeón."
+    },
+    {
+      "id": "q3",
+      "question": "¿Cuántos CS perfectos puedes obtener a los 10 minutos?",
+      "options": [
+        "80 CS",
+        "90 CS",
+        "100+ CS",
+        "70 CS"
+      ],
+      "correct_answer": 2,
+      "explanation": "Con oleadas perfectas, puedes alcanzar 107 CS a los 10 minutos. 80+ CS es considerado buen CS en ranked."
+    }
+  ],
+  "resources": [
+    {
+      "title": "Guía de Last Hitting - ProGuides",
+      "url": "https://example.com/guia-cs"
+    },
+    {
+      "title": "Calculadora de CS Perfecto",
+      "url": "https://example.com/cs-calculator"
+    }
+  ]
+}

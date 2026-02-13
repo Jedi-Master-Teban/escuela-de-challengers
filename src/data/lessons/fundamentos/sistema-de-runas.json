@@ -1,0 +1,58 @@
+{
+  "id": "lesson_1_4",
+  "title": "1.4 Sistema de Runas: Meta y Optimización (S16)",
+  "video_id": "RuNS16Guide",
+  "duration": "14 min",
+  "summary": "Domina la actualización de Runas de la Season 16. Analizamos el retorno de Lethal Tempo, el rework de visión en Dominación y la matemática de eficiencia de oro para construir páginas de nivel Challenger.",
+  "content_md": "# Maestría de Runas Season 16\n\nBienvenido a la inmersión profunda en el sistema de runas del Parche 16.1. En el High Elo, no copiamos páginas a ciegas; entendemos **por qué** elegimos cada fragmento. Esta temporada ha redefinido la identidad de los *Hypercarries* y los *Control Mages*.\n\n## 1. Precision: El Retorno del DPS\n\nLa rama de Precisión vuelve a ser el estándar para tiradores y duelistas, centrada en el combate extendido.\n\n*   **Lethal Tempo (Rework):** Ya no otorga rango excesivo. Ahora, al alcanzar 6 stacks, tus ataques lanzan una **nota de daño adaptativo** adicional. Fundamental para Jinx, Kog'Maw y Yone.\n*   **Press the Attack:** Sigue siendo el rey del *burst* corto. Úsalo en *lanes* volátiles donde un error del rival significa muerte instantánea (ej. Lucian/Nami).\n*   **Conqueror:** La opción obligatoria para *Bruisers* que buscan *extended trades* (Darius, Aatrox).\n\n## 2. Domination: La Revolución de Visión\n\n**ATENCIÓN:** Olvida lo que sabías sobre *Zombie Ward*. La fila 2 ha sido reemplazada por un sistema de **Visión Dinámica** [web:1][web:5].\n\n*   **Sixth Sense:** Te alerta automáticamente de wards enemigos cercanos. Es el *counter* definitivo al *facecheck* en la jungla.\n*   **Keystones de Burst:** *Electrocute* y *Hail of Blades* dominan el meta de asesinos. **Nota:** *Predator* ha sido eliminado permanentemente del juego competitivo por su falta de interacción.\n\n## 3. Sorcery & Inspiration: Utilidad y Economía\n\n*   **Axiom Arcanist (Sorcery):** La nueva runa menor imprescindible para campeones *Ult-reliant* (Karthus, Malphite). Reembolsa CD de la definitiva y aumenta su daño/curación un 12%.\n*   **First Strike (Inspiration):** En un meta más lento, asegurar esos 100-150 de oro extra en el *mid-game* acelera tus *item spikes* drásticamente. Úsalo si tienes ventaja de rango.\n\n## 4. Eficiencia de Oro y Construcción\n\nEntender el valor en oro de tus runas separa a un Diamante de un Grandmaster.\n\n*   **Grasp of the Undying:** 30 activaciones equivalen a ~400g en vida permanente (un Ruby Crystal gratis).\n*   **Fragmentos (Shards):** Con el buff a la Tenacidad (15%) y Velocidad de Movimiento (2.5%), ahora es viable evitar las Botas de Mercurio en ciertos matchups y optar por Botas de Rapidez o Berserker.\n\n## Conclusión\n\nEn la Season 16, la flexibilidad gana partidas. Si eres Jungla, *Sixth Sense* es obligatorio. Si eres ADC, dominar el *stacking* de *Lethal Tempo* es tu prioridad mecánica. Adapta tus runas en cada lobby.",
+  "cheat_sheet_md": "## 🛡️ Cheat Sheet: Runas S16\n\n### ⚔️ Keystones Clave (Meta Actual)\n*   **Lethal Tempo:** Solo para *Hypercarries*. Busca peleas largas para activar la nota de daño extra.\n*   **First Strike:** Prioridad en campeones de *burst* y *poke* (Jayce, Corki) para acelerar economía.\n*   **Electrocute:** Estándar para trades cortos y rápidos.\n\n### 👁️ El Nuevo Árbol de Dominación\n*   **Sixth Sense > Zombie Ward:** Úsalo contra Supports de *roam* pesado (Pyke, Bard).\n*   **Grisly Mementos:** Aceleración de habilidad por derribos. Ideal para asesinos de *snowball*.\n\n### ⚠️ Trampas Comunes\n*   🚫 **Predator:** NO EXISTE en S16. No busques guías antiguas.\n*   🚫 **Axiom Arcanist en CD bajos:** No la uses en campeones con ultimates de poco impacto (ej. Zoe, Nidalee). Es para ultimates *Game-Changing*.",
+  "quiz": [
+    {
+      "question": "¿Cuál es el beneficio principal de la versión Season 16 de Lethal Tempo al máximo de cargas?",
+      "options": [
+        "Aumenta el rango de ataque en 50 unidades.",
+        "Otorga daño verdadero en cada tercer ataque.",
+        "Lanza una nota adicional de daño adaptativo con cada ataque.",
+        "Convierte el exceso de velocidad de ataque en AD/AP."
+      ],
+      "correct_index": 2,
+      "explanation": "En la Season 16, Lethal Tempo eliminó el rango extra para enfocarse en DPS puro mediante una nota de daño adaptativo al alcanzar 6 stacks."
+    },
+    {
+      "question": "¿Qué runa de la rama de Dominación reemplazó a 'Zombie Ward' y cuál es su función?",
+      "options": [
+        "Grisly Mementos: Da AP por matar wards.",
+        "Sixth Sense: Rastrea y alerta sobre wards enemigos cercanos.",
+        "Deep Ward: Hace los wards invisibles.",
+        "Predator: Aumenta velocidad fuera de combate."
+      ],
+      "correct_index": 1,
+      "explanation": "Sixth Sense es la nueva runa de utilidad que permite a Junglas y Supports detectar visión enemiga sin necesidad de un Oracle Lens constante."
+    },
+    {
+      "question": "¿Para qué tipo de campeones es óptima la nueva runa 'Axiom Arcanist' en la rama de Brujería?",
+      "options": [
+        "Campeones que dependen de autoataques.",
+        "Tanques que necesitan resistencia pura.",
+        "Campeones 'Ult-reliant' con definitivas de alto impacto y enfriamiento largo.",
+        "Supports de curación en área."
+      ],
+      "correct_index": 2,
+      "explanation": "Axiom Arcanist aumenta el daño/efecto de la definitiva y reduce su CD tras derribos, ideal para campeones como Karthus o Amumu."
+    }
+  ],
+  "resources": [
+    {
+      "title": "Notas Oficiales del Parche 16.1",
+      "url": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-16-1-notes/"
+    },
+    {
+      "title": "Lolalytics - Winrates de Runas S16",
+      "url": "https://lolalytics.com/"
+    },
+    {
+      "title": "Análisis de Eficiencia - Skill Capped",
+      "url": "https://www.skill-capped.com/lol/browse/course"
+    }
+  ]
+}

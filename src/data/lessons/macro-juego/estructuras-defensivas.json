@@ -1,0 +1,58 @@
+{
+  "id": "lesson_2_1",
+  "title": "Estructuras Defensivas S16: Placas, Cristales y Asedio",
+  "video_id": "MV3AYTdKZOI",
+  "duration": "14 min",
+  "summary": "Domina la 'Hyper-Acceleration' de la Season 16. Aprende cómo el Crecimiento Cristalino y las Placas Infinitas en T2/T3 han eliminado el juego pasivo y transformado el split-push.",
+  "content_md": "# Dominando la Estructura del Mapa en S16\n\nEn la Season 16, Riot Games ha declarado la guerra al *turtling*. Como analistas, ya no vemos las torres como zonas de seguridad, sino como **bancos de recursos vulnerables**. Entender la nueva economía de las estructuras es la diferencia entre un macrojuego de Platino y uno de Challenger.\n\n## 1. La Revolución de las Placas (Turret Plates)\n\nOlvida la regla de los 14 minutos. El cambio más sistémico de este año es la **universalización de las placas**.\n\n*   **Persistencia Infinita:** Las placas ya no desaparecen. Esto significa que el oro del mapa no se \"evapora\" al llegar al mid-game.\n*   **Expansión a Tier 2 y Tier 3:** Ahora las Torretas Interiores (T2) e Inhibidores (T3) también tienen placas. \n\n**Implicación para el SoloQ:** El valor de un *split-pusher* (Fiora, Camille, Trundle) se ha disparado. Antes, tirar una T2 al minuto 20 daba oro global y local fijo. Ahora, otorga una inyección masiva de oro por placa, permitiendo *comebacks* económicos basados puramente en presión lateral.\n\n## 2. Crecimiento Cristalino (Crystalline Overgrowth)\n\nEsta es la nueva mecánica anti-asedio pasivo. Es un *check* de actividad constante.\n\n*   **La Mecánica:** Las torres acumulan cristales pasivamente en ciclos de **90 segundos**. \n*   **El Castigo:** Si un atacante golpea una torre cargada, detona el cristal infligiendo **Daño Verdadero** masivo a la estructura.\n*   **El Counterplay:** La carga se detiene si hay un campeón defensor cerca. \n\nEsto fuerza a los defensores a estar *físicamente* en el carril. Ya no puedes limpiar oleadas desde lejos con Ziggs o Xerath y esperar que la torre aguante; si no interactúas con la zona de amenaza, la torre caerá por el daño verdadero acumulado.\n\n## 3. Vulnerabilidad Estructural\n\nPara cerrar las partidas más rápido, las defensas base son de papel comparadas con la S15.\n\n*   **Bono de Daño Melé:** Los campeones cuerpo a cuerpo ahora infligen un **+20% de daño** a todas las estructuras. Si dejas a un Jax solo 10 segundos, pierdes la base.\n*   **Nexo Nerfeado:** Las torretas del Nexo destruidas solo regeneran hasta el **40% de su HP máximo** al reaparecer. El daño es permanente y acumulativo.\n\n## Conclusión\n\nLa Season 16 premia la proactividad. Defender bajo torre es menos viable que nunca debido al Crecimiento Cristalino. La estrategia ganadora es interceptar las oleadas *antes* de que lleguen a tu torre y forzar intercambios en las líneas laterales para cobrar las nuevas placas de T2.",
+  "cheat_sheet_md": "## Resumen Rápido: Cheat Sheet S16\n\n### 🎯 Cambios Críticos en Torres\n*   **Placas (Plates):** NUNCA desaparecen (antes min 14). Ahora existen en T2 y T3.\n*   **Daño Melé:** +20% de daño a estructuras para campeones cuerpo a cuerpo.\n*   **Torres de Nexo:** Al respawnear, solo recuperan 40% HP (No 100%).\n\n### 💎 Crecimiento Cristalino (Nuevo)\n*   **Efecto:** Carga daño verdadero contra la torre cada 90s.\n*   **Activación:** Al golpear la torre cargada.\n*   **Cómo evitarlo:** Mantén un campeón defensor cerca de la torre para pausar la carga.\n\n### ⚙️ Regla de Oro Macro\n*   Si eres Toplaner: Prioriza T2 sobre rotaciones inútiles; valen más oro que nunca.\n*   Si eres Defensor: No dejes las torres solas contra asedios; el *chip damage* ahora es real y letal.",
+  "quiz": [
+    {
+      "question": "¿Cuál es el cambio fundamental de las Placas de Torre (Tower Plates) en la Season 16?",
+      "options": [
+        "Otorgan el doble de oro pero desaparecen al minuto 10.",
+        "Ahora causan daño verdadero a los atacantes cercanos.",
+        "Ya no desaparecen al minuto 14 y se han añadido a las torres T2 y T3.",
+        "Solo aparecen en la línea central (Mid Lane)."
+      ],
+      "correct_index": 2,
+      "explanation": "En la S16, las placas son permanentes y se extienden a las torres interiores, haciendo que el split-push sea económicamente viable durante toda la partida."
+    },
+    {
+      "question": "¿Cómo puede un equipo defensor contrarrestar la mecánica de 'Crecimiento Cristalino' en sus torres?",
+      "options": [
+        "Usando el Glifo de Fortificación.",
+        "Manteniendo a un campeón defensor cerca de la torre para suprimir la carga.",
+        "Curando la torre con campeones de soporte.",
+        "Eliminando a los súbditos antes de que toquen la torre."
+      ],
+      "correct_index": 1,
+      "explanation": "La mecánica de Crecimiento Cristalino se desactiva por proximidad. Si hay un defensor cerca, la torre no acumula la carga explosiva."
+    },
+    {
+      "question": "¿Qué bonificación específica reciben los campeones melé contra estructuras en el parche 16.1?",
+      "options": [
+        "Ganan velocidad de ataque acumulativa al golpear torres.",
+        "Infligen un +20% de daño a las estructuras.",
+        "Reciben menos daño de los disparos de la torre.",
+        "Pueden ejecutar torres por debajo del 5% de vida."
+      ],
+      "correct_index": 1,
+      "explanation": "Para acelerar el juego y potenciar a los split-pushers, los campeones cuerpo a cuerpo tienen un modificador de +20% de daño contra todas las estructuras."
+    }
+  ],
+  "resources": [
+    {
+      "title": "Notas Oficiales del Parche 16.1",
+      "url": "https://www.leagueoflegends.com/en-gb/news/game-updates/patch-26-1-notes/"
+    },
+    {
+      "title": "Análisis de Cambios S16 - Skill Capped/Dishake",
+      "url": "https://www.youtube.com/watch?v=MV3AYTdKZOI"
+    },
+    {
+      "title": "Wiki: Mecánicas de Super Minions",
+      "url": "https://leagueoflegends.fandom.com/wiki/Super_minion"
+    }
+  ]
+}
