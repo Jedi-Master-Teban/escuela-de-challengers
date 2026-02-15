@@ -63,8 +63,14 @@ export function useRiotApi() {
     const saved = localStorage.getItem('riot_summoner');
     return saved ? JSON.parse(saved) : null;
   });
-  const [ranks, setRanks] = useState<RiotRank[]>([]);
-  const [matches, setMatches] = useState<MatchData[]>([]);
+  const [ranks, setRanks] = useState<RiotRank[]>(() => {
+    const saved = localStorage.getItem('riot_ranks');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [matches, setMatches] = useState<MatchData[]>(() => {
+    const saved = localStorage.getItem('riot_matches');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   // Persist account/summoner changes
   useEffect(() => {
@@ -76,6 +82,16 @@ export function useRiotApi() {
     if (summoner) localStorage.setItem('riot_summoner', JSON.stringify(summoner));
     else localStorage.removeItem('riot_summoner');
   }, [summoner]);
+
+  useEffect(() => {
+    if (ranks.length > 0) localStorage.setItem('riot_ranks', JSON.stringify(ranks));
+    else localStorage.removeItem('riot_ranks');
+  }, [ranks]);
+
+  useEffect(() => {
+    if (matches.length > 0) localStorage.setItem('riot_matches', JSON.stringify(matches));
+    else localStorage.removeItem('riot_matches');
+  }, [matches]);
 
   const PROXY_URL = 'http://localhost:3001/api';
 
@@ -264,7 +280,18 @@ export function useRiotApi() {
 
     } catch (err: any) {
       console.error(err);
-      setError(err.response?.data?.error || 'Failed to fetch Riot data');
+      // Distinguish proxy-down from API errors
+      if (err.code === 'ERR_NETWORK' || err.message?.includes('Network Error')) {
+        setError('No se puede conectar al servidor proxy. Asegúrate de ejecutar: cd server && node proxy.js');
+      } else if (err.response?.status === 403) {
+        setError('API Key de Riot inválida o expirada. Verifica RIOT_API_KEY en server/.env');
+      } else if (err.response?.status === 404) {
+        setError(`Invocador no encontrado. Verifica el nombre y tag (ej: Faker#KR1)`);
+      } else if (err.response?.status === 429) {
+        setError('Límite de peticiones alcanzado. Espera unos segundos e intenta de nuevo.');
+      } else {
+        setError(err.response?.data?.error || err.response?.data?.status?.message || 'Error al obtener datos de Riot');
+      }
     } finally {
       setLoading(false);
     }
@@ -289,6 +316,10 @@ export function useRiotApi() {
       setRanks([]);
       setMatches([]);
       setError(null);
+      localStorage.removeItem('riot_account');
+      localStorage.removeItem('riot_summoner');
+      localStorage.removeItem('riot_ranks');
+      localStorage.removeItem('riot_matches');
     }
   };
 }

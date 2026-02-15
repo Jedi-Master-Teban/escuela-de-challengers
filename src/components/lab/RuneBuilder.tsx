@@ -1,12 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Trash2, Sparkles, Calculator, Zap } from 'lucide-react';
-import type { RuneTree, Rune } from '../../services/dataDragon/runeService';
+import type { RuneTree } from '../../services/dataDragon/runeService';
 import { 
   getRuneTrees, 
   getRuneIconUrl, 
   RUNE_TREE_COLORS, 
-  cleanDescription,
-  STAT_SHARDS,
   STAT_SHARDS_BY_SLOT,
   getStatShardsBySlot,
   type StatShard
@@ -104,130 +102,9 @@ export default function RuneBuilder() {
     });
   };
 
-  // Extract stats from a rune description with comprehensive regex patterns
-  const extractStatsFromDescription = (desc: string): Partial<RuneStats> => {
-    const result: Partial<RuneStats> = {};
-    const lowerDesc = desc.toLowerCase();
-    
-    // Helper function to extract numeric values with various formats
-    const extractNumber = (pattern: RegExp): number | null => {
-      const match = lowerDesc.match(pattern);
-      if (match) {
-        // Handle various formats: integer, decimal, percentage
-        const value = match[1] || match[2] || match[3] || '0';
-        const cleaned = value.replace(/[+%]/g, '');
-        const parsed = parseFloat(cleaned);
-        return isNaN(parsed) ? null : parsed;
-      }
-      return null;
-    };
-    
-    // Adaptive Force - handles: "+X Adaptive Force", "X Adaptive", "X fuerza adaptativa", "X%", etc.
-    const adaptivePatterns = [
-      /([\d.]+)\s*adaptive\s*force/i,
-      /([\d.]+)\s*adaptive/i,
-      /fuerza[\s]+adaptativa[\s:]+([\d.]+)/i,
-      /([\d.]+)\s*fuerza\s*adaptativa/i,
-      /\+([\d.]+)\s*adaptive/i,
-      /\+([\d.]+)\s*fuerza/i,
-    ];
-    for (const pattern of adaptivePatterns) {
-      const val = extractNumber(pattern);
-      if (val !== null) {
-        result.adaptive = val;
-        break;
-      }
-    }
-    
-    // Attack Speed - handles: "X% attack speed", "X% velocidad de ataque", "X.y%" etc.
-    const asPatterns = [
-      /([\d.]+)%\s*attack\s*speed/i,
-      /([\d.]+)%\s*velocidad\s*de\s*ataque/i,
-      /attack\s*speed[\s:]+([\d.]+)%?/i,
-      /velocidad\s*de\s*ataque[\s:]+([\d.]+)%?/i,
-      /([\d.]+)%\s*as/i,
-    ];
-    for (const pattern of asPatterns) {
-      const val = extractNumber(pattern);
-      if (val !== null) {
-        result.attackSpeed = val;
-        break;
-      }
-    }
-    
-    // Ability Haste / Celerity / Haste
-    const ahPatterns = [
-      /celeridad[\s:]+([\d.]+)/i,
-      /ability\s*haste[\s:]+([\d.]+)/i,
-      /haste[\s:]+([\d.]+)/i,
-      /([\d.]+)\s*celerity/i,
-      /([\d.]+)\s*ability\s*haste/i,
-      /([\d.]+)\s*ah/i,
-    ];
-    for (const pattern of ahPatterns) {
-      const val = extractNumber(pattern);
-      if (val !== null) {
-        result.abilityHaste = val;
-        break;
-      }
-    }
-    
-    // Armor - handles: "+X Armor", "X Armadura", "X% armor" etc.
-    const armorPatterns = [
-      /armor[\s:]+([\d.]+)/i,
-      /armadura[\s:]+([\d.]+)/i,
-      /([\d.]+)\s*armor/i,
-      /([\d.]+)\s*armadura/i,
-      /\+([\d.]+)\s*armor/i,
-      /\+([\d.]+)\s*armadura/i,
-    ];
-    for (const pattern of armorPatterns) {
-      const val = extractNumber(pattern);
-      if (val !== null) {
-        result.armor = val;
-        break;
-      }
-    }
-    
-    // Magic Resist - handles: "+X MR", "X Magic Resist", "X Resistencia Mágica"
-    const mrPatterns = [
-      /magic\s*resist[\s:]+([\d.]+)/i,
-      /resistencia[\s]*m[áa]gica[\s:]+([\d.]+)/i,
-      /([\d.]+)\s*magic\s*resist/i,
-      /([\d.]+)\s*mr/i,
-      /([\d.]+)\s*resistencia[\s]*m[áa]gica/i,
-      /\+([\d.]+)\s*mr/i,
-    ];
-    for (const pattern of mrPatterns) {
-      const val = extractNumber(pattern);
-      if (val !== null) {
-        result.magicResist = val;
-        break;
-      }
-    }
-    
-    // Health - handles: "+X HP", "X Health", "X Vida", "X% health"
-    const hpPatterns = [
-      /health[\s:]+([\d.]+)/i,
-      /vida[\s:]+([\d.]+)/i,
-      /([\d.]+)\s*health/i,
-      /([\d.]+)\s*vida/i,
-      /([\d.]+)\s*hp/i,
-      /\+([\d.]+)\s*health/i,
-      /\+([\d.]+)\s*vida/i,
-    ];
-    for (const pattern of hpPatterns) {
-      const val = extractNumber(pattern);
-      if (val !== null) {
-        result.health = val;
-        break;
-      }
-    }
-    
-    return result;
-  };
-
-  // Calculate total stats from selected runes and shards
+  // Calculate total stats from selected shards only.
+  // Runes/keystones provide complex conditional effects (not flat stats),
+  // so we only count stat shards which have well-defined flat values.
   const calculateStats = (): RuneStats => {
     const stats: RuneStats = {
       adaptive: 0,
@@ -237,53 +114,6 @@ export default function RuneBuilder() {
       magicResist: 0,
       health: 0,
     };
-
-    // Add keystones stats (base adaptive bonus)
-    if (keystone) {
-      stats.adaptive += 9;
-    }
-
-    // Add primary rune stats
-    if (currentPrimaryTree) {
-      [...primaryRunes, keystone].forEach(runeId => {
-        const rune = currentPrimaryTree.slots
-          .flatMap(s => s.runes)
-          .find(r => r.id === runeId);
-        
-        if (rune) {
-          const desc = cleanDescription(rune.longDesc || rune.shortDesc || '');
-          const runeStats = extractStatsFromDescription(desc);
-          
-          if (runeStats.adaptive) stats.adaptive += runeStats.adaptive;
-          if (runeStats.attackSpeed) stats.attackSpeed += runeStats.attackSpeed;
-          if (runeStats.abilityHaste) stats.abilityHaste += runeStats.abilityHaste;
-          if (runeStats.armor) stats.armor += runeStats.armor;
-          if (runeStats.magicResist) stats.magicResist += runeStats.magicResist;
-          if (runeStats.health) stats.health += runeStats.health;
-        }
-      });
-    }
-
-    // Add secondary rune stats
-    if (currentSecondaryTree) {
-      secondaryRunes.forEach(runeId => {
-        const rune = currentSecondaryTree.slots
-          .flatMap(s => s.runes)
-          .find(r => r.id === runeId);
-        
-        if (rune) {
-          const desc = cleanDescription(rune.longDesc || rune.shortDesc || '');
-          const runeStats = extractStatsFromDescription(desc);
-          
-          if (runeStats.adaptive) stats.adaptive += runeStats.adaptive;
-          if (runeStats.attackSpeed) stats.attackSpeed += runeStats.attackSpeed;
-          if (runeStats.abilityHaste) stats.abilityHaste += runeStats.abilityHaste;
-          if (runeStats.armor) stats.armor += runeStats.armor;
-          if (runeStats.magicResist) stats.magicResist += runeStats.magicResist;
-          if (runeStats.health) stats.health += runeStats.health;
-        }
-      });
-    }
 
     // Add stat shards (one per slot, independent)
     Object.entries(shardSelections).forEach(([slot, shardId]) => {
@@ -436,7 +266,21 @@ export default function RuneBuilder() {
                 <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Runas Secundarias</h3>
                 <span className="text-xs text-yellow-400">{secondaryRunes.length}/2 seleccionadas</span>
               </div>
-              {currentSecondaryTree.slots.slice(1, 4).map((slot, slotIndex) => (
+              {currentSecondaryTree.slots.slice(1, 4).map((slot, slotIndex) => {
+                // Determine which slots have selections
+                const getSlotForRune = (runeId: number): number => {
+                  for (let si = 0; si < 3; si++) {
+                    const s = currentSecondaryTree.slots[si + 1]; // slots 1-3
+                    if (s?.runes.some(r => r.id === runeId)) return si;
+                  }
+                  return -1;
+                };
+                const selectedSlots = secondaryRunes.map(id => getSlotForRune(id));
+                const thisSlotHasSelection = selectedSlots.includes(slotIndex);
+                // Slot is locked when 2 runes are selected from OTHER slots
+                const isSlotLocked = !thisSlotHasSelection && secondaryRunes.length >= 2;
+
+                return (
                 <div key={slotIndex} className="space-y-2 mb-4">
                   <div className="flex items-center gap-2 text-xs text-gray-500">
                     <span className="uppercase tracking-wider">{`Ranura ${slotIndex + 1}`}</span>
@@ -445,16 +289,26 @@ export default function RuneBuilder() {
                   <div className="flex flex-wrap gap-2">
                     {slot.runes.map(rune => {
                       const isSelected = secondaryRunes.includes(rune.id);
-                      const isDisabled = !isSelected && secondaryRunes.length >= 2;
+                      const isDisabled = !isSelected && isSlotLocked;
                       return (
                         <button
                           key={rune.id}
                           onClick={() => {
-                            if (secondaryRunes.includes(rune.id)) {
+                            if (isSelected) {
+                              // Deselect
                               setSecondaryRunes(secondaryRunes.filter(r => r !== rune.id));
+                            } else if (thisSlotHasSelection) {
+                              // Replace the rune from THIS slot (can't have two from same slot)
+                              const runeFromThisSlot = secondaryRunes.find(id => getSlotForRune(id) === slotIndex);
+                              setSecondaryRunes([
+                                ...secondaryRunes.filter(id => id !== runeFromThisSlot),
+                                rune.id
+                              ]);
                             } else if (secondaryRunes.length >= 2) {
+                              // 2 already selected from other slots — replace oldest
                               setSecondaryRunes([secondaryRunes[1], rune.id]);
                             } else {
+                              // Less than 2 selected, just add
                               setSecondaryRunes([...secondaryRunes, rune.id]);
                             }
                           }}
@@ -482,7 +336,8 @@ export default function RuneBuilder() {
                     })}
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
 

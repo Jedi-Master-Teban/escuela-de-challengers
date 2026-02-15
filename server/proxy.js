@@ -629,20 +629,39 @@ app.get('/api/scrape-builds/:champion/:role', checkKey, async (req, res) => {
         return null;
     });
 
-    let finalItemIds = [];
+    let finalItems = { core: [], boots: [], situational: [] };
     let finalRuneIds = [];
     let finalWinrate = 'N/A';
 
     if (ssrData && ssrData.items && ssrData.runes) {
         console.log('[PROXY] Using SSR Data for Build');
-        finalItemIds = ssrData.items.slice(0, 6);
+        finalItems = ssrData.items; // Already structured as {core, boots, situational}
         finalRuneIds = ssrData.runes;
         finalWinrate = ssrData.winrate ? `${ssrData.winrate}% WR` : 'N/A';
+        
+        // Post-process: auto-detect boots in core array if boots is empty
+        // Known boot item IDs in League of Legends
+        const BOOT_IDS = [
+            1001, // Boots
+            3006, // Berserker's Greaves
+            3009, // Boots of Swiftness
+            3020, // Sorcerer's Shoes
+            3047, // Plated Steelcaps
+            3111, // Mercury's Treads
+            3117, // Mobility Boots
+            3158, // Ionian Boots of Lucidity
+        ];
+        
+        if (finalItems.boots.length === 0) {
+            const bootsInCore = finalItems.core.filter(id => BOOT_IDS.includes(id));
+            if (bootsInCore.length > 0) {
+                finalItems.boots = bootsInCore;
+                finalItems.core = finalItems.core.filter(id => !BOOT_IDS.includes(id));
+                console.log(`[PROXY] Moved ${bootsInCore.length} boot(s) from core to boots:`, bootsInCore);
+            }
+        }
     } else {
         console.log('[PROXY] SSR Data missing or incomplete, falling back to DOM (legacy)');
-        // Fallback to DOM scraping if SSR fails
-        // ... (Keep existing DOM logic here as backup if needed, or just return empty)
-        // For now, let's trust SSR if we found it, otherwise existing logic
     }
     
     // Legacy DOM Access (only if SSR failed, or to supplement)
@@ -654,10 +673,12 @@ app.get('/api/scrape-builds/:champion/:role', checkKey, async (req, res) => {
     });
 
     if (ssrData && ssrData.items) {
-          // Construct the response object directly
+          // Construct the response object with structured items
           const response = {
             runeIds: finalRuneIds,
-            itemIds: finalItemIds,
+            items: finalItems,
+            // Also send flat itemIds for backwards compatibility
+            itemIds: [...(finalItems.core || []), ...(finalItems.boots || []), ...(finalItems.situational || [])],
             winrate: finalWinrate,
           };
           console.log('[SCRAPE BUILD] Helper Success (SSR):', response);

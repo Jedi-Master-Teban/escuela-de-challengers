@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { HextechButton } from '../components/hextech';
@@ -10,9 +10,8 @@ import RankOverviewCard from '../components/dashboard/RankOverviewCard';
 import StatsSummary from '../components/dashboard/StatsSummary';
 import MatchHistoryWidget from '../components/dashboard/MatchHistoryWidget';
 import CourseHeroCard from '../components/dashboard/CourseHeroCard';
-import AchievementsWidget from '../components/dashboard/AchievementsWidget';
-import LeaderboardWidget from '../components/dashboard/LeaderboardWidget';
-import RewardsWidget from '../components/dashboard/RewardsWidget';
+
+
 
 // Mock Data
 import { 
@@ -21,6 +20,12 @@ import {
   MOCK_STATS_SUMMARY,
   MOCK_COURSES 
 } from '../data/mock/dashboardData';
+
+// Firebase Progress
+import { getAllCompletedLessons } from '../services/firebase/progressService';
+
+// Registry for module/lesson mapping
+import registry from '../data/registry.json';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -37,6 +42,49 @@ export default function DashboardPage() {
   } = useRiotApi();
 
   const [riotIdInput, setRiotIdInput] = useState('');
+
+  // Course progress from Firebase
+  const [courseProgress, setCourseProgress] = useState<Record<string, number>>({});
+
+  // Map registry module IDs to MOCK_COURSES IDs
+  const MODULE_ID_MAP: Record<string, string> = {
+    'fundamentos': 'fundamentals',
+    'macro': 'macro',
+    'mecanicas': 'mechanics',
+    'mentalidad': 'mental',
+  };
+
+  useEffect(() => {
+    async function loadProgress() {
+      if (!user) return;
+      try {
+        const completedLessons = await getAllCompletedLessons(user.uid);
+        const completedIds = completedLessons.map(l => l.lessonId);
+
+        // Count completions per module by checking lesson paths from registry
+        const progress: Record<string, number> = {};
+        for (const mod of registry.modules) {
+          const courseId = MODULE_ID_MAP[mod.id] || mod.id;
+          let count = 0;
+          for (const lesson of mod.lessons) {
+            // Build the lessonId the same way ModulesPage/LessonPage does
+            const pathParts = lesson.path.replace('.json', '').split('/');
+            const folder = pathParts[0];
+            const lessonSlug = pathParts[pathParts.length - 1];
+            const lessonId = `${folder}/${lessonSlug}`;
+            if (completedIds.includes(lessonId)) {
+              count++;
+            }
+          }
+          progress[courseId] = count;
+        }
+        setCourseProgress(progress);
+      } catch (err) {
+        console.error('Failed to load course progress:', err);
+      }
+    }
+    loadProgress();
+  }, [user]);
 
   const handleLinkAccount = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -193,15 +241,24 @@ export default function DashboardPage() {
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {MOCK_COURSES.slice(0, 4).map((course) => ( // Showing 4 items
-                  <CourseHeroCard 
-                    key={course.id}
-                    {...course}
-                    completedCount={course.completed}
-                    onClick={() => navigate('/modules')}
-                    // Removed compact prop for bigger size
-                  />
-                ))}
+                {MOCK_COURSES.slice(0, 4).map((course) => {
+                  // Get real lesson count from registry
+                  const registryModule = registry.modules.find(
+                    m => MODULE_ID_MAP[m.id] === course.id || m.id === course.id
+                  );
+                  const realLessonsCount = registryModule ? registryModule.lessons.length : course.lessonsCount;
+                  const realCompleted = courseProgress[course.id] ?? 0;
+
+                  return (
+                    <CourseHeroCard 
+                      key={course.id}
+                      {...course}
+                      lessonsCount={realLessonsCount}
+                      completedCount={realCompleted}
+                      onClick={() => navigate('/modules')}
+                    />
+                  );
+                })}
               </div>
             </div>
 
@@ -210,30 +267,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Fase 4: Gamification Section */}
-        <div className="mt-8">
-          <h2 className="text-2xl font-bold text-hextech-gold mb-6 flex items-center gap-2">
-            <span className="text-2xl">🏆</span>
-            Gamificación
-          </h2>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Achievements */}
-            <div className="lg:col-span-2">
-              <AchievementsWidget />
-            </div>
-            
-            {/* Leaderboard */}
-            <div>
-              <LeaderboardWidget />
-            </div>
-          </div>
-          
-          {/* Rewards */}
-          <div className="mt-6">
-            <RewardsWidget />
-          </div>
-        </div>
+
       </main>
     </div>
   );

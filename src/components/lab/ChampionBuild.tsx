@@ -47,7 +47,7 @@ interface ChampionBuildProps {
 
 export default function ChampionBuild({ championName, buildData }: ChampionBuildProps) {
   // Mode State
-  const [isEditMode, setIsEditMode] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState(buildData?.role || 'Mid');
   const [importLoading, setImportLoading] = useState(false);
   const [winrate, setWinrate] = useState<string | null>(null);
@@ -70,6 +70,7 @@ export default function ChampionBuild({ championName, buildData }: ChampionBuild
 
   const [coreItems, setCoreItems] = useState<Item[]>([]);
   const [boots, setBoots] = useState<Item[]>([]);
+  const [situationalItems, setSituationalItems] = useState<Item[]>([]);
   
   // Rune State
   const [primaryTree, setPrimaryTree] = useState<RuneTree | null>(null);
@@ -181,14 +182,17 @@ export default function ChampionBuild({ championName, buildData }: ChampionBuild
         // Load items
         const corePromises = currentBuildData.items.core.map(id => getItemById(id));
         const bootPromises = currentBuildData.items.boots.map(id => getItemById(id));
+        const sitPromises = (currentBuildData.items.situational || []).map(id => getItemById(id));
 
-        const [core, boot] = await Promise.all([
+        const [core, boot, sit] = await Promise.all([
           Promise.all(corePromises),
-          Promise.all(bootPromises)
+          Promise.all(bootPromises),
+          Promise.all(sitPromises)
         ]);
 
         setCoreItems(core.filter((i): i is Item => i !== null));
         setBoots(boot.filter((i): i is Item => i !== null));
+        setSituationalItems(sit.filter((i): i is Item => i !== null));
 
         // Load Runes
         if (fetchedRunes.length > 0) {
@@ -379,14 +383,29 @@ export default function ChampionBuild({ championName, buildData }: ChampionBuild
               // Resolve display
               await resolveRunesForDisplay(data.runeIds, pTree?.id);
 
-              // 2. Update Items
-              if (data.itemIds && data.itemIds.length > 0) {
+              // 2. Update Items (use structured items if available, fallback to flat itemIds)
+              if (data.items && (data.items.core || data.items.boots || data.items.situational)) {
+                 const corePromises = (data.items.core || []).map((id: number) => getItemById(id.toString()));
+                 const bootPromises = (data.items.boots || []).map((id: number) => getItemById(id.toString()));
+                 const sitPromises = (data.items.situational || []).map((id: number) => getItemById(id.toString()));
+                 
+                 const [core, boot, sit] = await Promise.all([
+                   Promise.all(corePromises),
+                   Promise.all(bootPromises),
+                   Promise.all(sitPromises)
+                 ]);
+                 
+                 setCoreItems(core.filter((i: Item | null): i is Item => i !== null));
+                 setBoots(boot.filter((i: Item | null): i is Item => i !== null));
+                 setSituationalItems(sit.filter((i: Item | null): i is Item => i !== null));
+              } else if (data.itemIds && data.itemIds.length > 0) {
+                 // Fallback: flat itemIds (legacy)
                  const itemPromises = data.itemIds.map((id: number) => getItemById(id.toString()));
                  const fetchedItems = await Promise.all(itemPromises);
                  const validItems = fetchedItems.filter((i: Item | null): i is Item => i !== null);
-                 
                  setCoreItems(validItems);
                  setBoots([]);
+                 setSituationalItems([]);
               }
 
                setToast({
@@ -459,72 +478,76 @@ export default function ChampionBuild({ championName, buildData }: ChampionBuild
 
   return (
     <div className="space-y-6">
-      {/* Header: Role Selector & Edit Toggle */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-gray-900/50 rounded-lg border border-gray-700 gap-4">
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-3">
-             {/* Read-Only Role Display (Replaced with Selector below) 
-                 Actually, let's make this interactive.
-             */}
-             <div className="flex gap-1 bg-gray-900/50 p-1 rounded-lg border border-gray-700">
-                {Object.keys(ROLE_ICONS).map((roleKey) => (
-                    <button
-                        key={roleKey}
-                        type="button"
-                        onClick={() => setSelectedRole(roleKey.charAt(0).toUpperCase() + roleKey.slice(1))}
-                        className={`p-1.5 rounded-md transition-all ${
-                            selectedRole.toLowerCase() === roleKey 
-                                ? 'bg-hextech-gold text-black shadow-lg shadow-hextech-gold/20' 
-                                : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'
-                        }`}
-                        title={roleKey.charAt(0).toUpperCase() + roleKey.slice(1)}
-                    >
-                        <img 
-                            src={ROLE_ICONS[roleKey]} 
-                            className={`w-4 h-4 ${selectedRole.toLowerCase() === roleKey ? 'brightness-0' : 'grayscale opacity-60'}`} 
-                            alt={roleKey}
-                        />
-                    </button>
-                ))}
-             </div>
-
-             {winrate && (
-                <span className="text-[10px] font-mono text-green-400 bg-green-400/10 px-2 py-0.5 rounded border border-green-400/20 h-fit">
-                    {winrate}
-                </span>
-             )}
-          </div>
-          <p className="text-xs text-gray-400 mt-1 max-w-md line-clamp-1 italic">
-            {activeData.description}
-          </p>
-        </div>
-
-        <div className="flex gap-2 items-center">
-            {isEditMode && (
-                 <>
-                <button 
-                  type="button"
-                  className={`flex items-center gap-2 px-3 py-1.5 bg-yellow-600/20 hover:bg-yellow-600/30 text-yellow-400 text-xs font-semibold rounded-md border border-yellow-500/50 transition-colors ${importLoading ? 'opacity-50 cursor-wait' : ''}`}
-                  onClick={handleAutoImport}
-                  disabled={importLoading}
-                >
-                    {importLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
-                    {importLoading ? 'Importando...' : 'Autoimportar'}
-                </button>
-                </>
-            )}
+      {/* Header: Role Dropdown & Auto Import */}
+      <div className="p-4 bg-gray-900/50 rounded-lg border border-gray-700">
+        <div className="flex items-center justify-between gap-3">
+          {/* Role Dropdown */}
+          <div className="relative">
             <button
               type="button"
-              onClick={() => setIsEditMode(!isEditMode)}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-md border transition-colors ${
-                isEditMode 
-                  ? 'bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border-blue-500/50' 
-                  : 'bg-gray-800 hover:bg-gray-700 text-gray-400 border-gray-600'
-              }`}
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="flex items-center gap-2 px-3 py-2 bg-gray-800 rounded-lg border border-gray-600 hover:border-gray-500 transition-colors min-w-[140px]"
             >
-              {isEditMode ? 'Listo' : 'Arma tu conjunto'}
+              <img
+                src={ROLE_ICONS[selectedRole.toLowerCase()] || ROLE_ICONS['mid']}
+                className="w-5 h-5"
+                alt={selectedRole}
+              />
+              <span className="text-sm text-white font-medium capitalize">{selectedRole}</span>
+              <svg className={`w-4 h-4 text-gray-400 ml-auto transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
             </button>
+
+            {isDropdownOpen && (
+              <div className="absolute top-full left-0 mt-1 w-full bg-gray-800 border border-gray-600 rounded-lg shadow-xl z-50 overflow-hidden">
+                {Object.keys(ROLE_ICONS).map((roleKey) => (
+                  <button
+                    key={roleKey}
+                    type="button"
+                    onClick={() => {
+                      setSelectedRole(roleKey.charAt(0).toUpperCase() + roleKey.slice(1));
+                      setIsDropdownOpen(false);
+                    }}
+                    className={`flex items-center gap-2 w-full px-3 py-2 text-sm transition-colors ${
+                      selectedRole.toLowerCase() === roleKey
+                        ? 'bg-hextech-gold/20 text-hextech-gold'
+                        : 'text-gray-300 hover:bg-gray-700'
+                    }`}
+                  >
+                    <img src={ROLE_ICONS[roleKey]} className="w-4 h-4" alt={roleKey} />
+                    <span className="capitalize">{roleKey}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Winrate Badge */}
+          {winrate && (
+            <span className="text-xs font-mono text-green-400 bg-green-400/10 px-2 py-1 rounded border border-green-400/20">
+              {winrate}
+            </span>
+          )}
+
+          {/* Auto-Import Button (always visible) */}
+          <button
+            type="button"
+            className={`flex items-center gap-2 px-3 py-2 bg-yellow-600/20 hover:bg-yellow-600/30 text-yellow-400 text-xs font-semibold rounded-lg border border-yellow-500/50 transition-colors ml-auto ${
+              importLoading ? 'opacity-50 cursor-wait' : ''
+            }`}
+            onClick={handleAutoImport}
+            disabled={importLoading}
+          >
+            {importLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+            {importLoading ? 'Importando...' : 'Importar Build'}
+          </button>
         </div>
+
+        {/* Build description */}
+        <p className="text-xs text-gray-400 mt-2 italic line-clamp-1">
+          {activeData.description}
+        </p>
       </div>
 
       {/* Core Items */}
@@ -575,129 +598,145 @@ export default function ChampionBuild({ championName, buildData }: ChampionBuild
       </div>
 
        {/* Boots */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <Shield className="w-4 h-4 text-blue-400" />
-          <h4 className="text-sm font-semibold text-white uppercase tracking-wider">Botas</h4>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {boots.map(item => (
-            <div key={item.id} className="relative group" onMouseEnter={() => setActiveTooltip(`boot-${item.id}`)} onMouseLeave={() => setActiveTooltip(null)}>
-              <div className="w-10 h-10 rounded-lg border border-blue-500/50 overflow-hidden bg-gray-800 hover:border-blue-400 transition-colors cursor-pointer">
-                <img src={getItemImageUrl(item.image.full)} alt={item.name} className="w-full h-full object-cover" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-
-      {/* Runes - FULL PAGE DISPLAY */}
-      {primaryTree && (
+      {boots.length > 0 && (
         <div className="space-y-3">
-          <h4 className="text-sm font-semibold text-white uppercase tracking-wider">Runas</h4>
-          <div className="flex flex-col md:flex-row gap-8 p-6 bg-gray-900/80 rounded-lg border border-gray-700 relative overflow-hidden">
-             
-             {/* Background Decoration */}
-             <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                 <img src={getRuneIconUrl(primaryTree.icon)} className="w-64 h-64 grayscale" />
-             </div>
-
-             {/* Primary Tree Column */}
-             <div className="flex-1 flex flex-col gap-6">
-                <div className="flex items-center gap-3 pb-4 border-b border-gray-700/50">
-                    <img src={getRuneIconUrl(primaryTree.icon)} className="w-8 h-8" />
-                    <span className="font-bold text-lg" style={{ color: RUNE_TREE_COLORS[primaryTree.key] }}>{primaryTree.name}</span>
+          <div className="flex items-center gap-2">
+            <Shield className="w-4 h-4 text-blue-400" />
+            <h4 className="text-sm font-semibold text-white uppercase tracking-wider">Botas</h4>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {boots.map(item => (
+              <div key={item.id} className="relative group" onMouseEnter={() => setActiveTooltip(`boot-${item.id}`)} onMouseLeave={() => setActiveTooltip(null)}>
+                <div className="w-10 h-10 rounded-lg border border-blue-500/50 overflow-hidden bg-gray-800 hover:border-blue-400 transition-colors cursor-pointer">
+                  <img src={getItemImageUrl(item.image.full)} alt={item.name} className="w-full h-full object-cover" />
                 </div>
-                
-                {/* Keystone */}
-                <div className="flex justify-center py-2">
-                    {keystone && (
-                        <div className="relative group">
-                            <img 
-                                src={getRuneIconUrl(keystone.icon)} 
-                                className="w-16 h-16 rounded-full border-2 border-transparent hover:border-white/50 transition-all cursor-help"
-                                style={{ filter: `drop-shadow(0 0 10px ${RUNE_TREE_COLORS[primaryTree.key]}60)` }}
-                            />
-                             <div className="absolute top-full left-1/2 -translate-x-1/2 text-center text-xs font-semibold mt-1 w-max text-white shadow-black drop-shadow-md">
-                                {keystone.name}
-                            </div>
-                        </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Situational Items */}
+      {situationalItems.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-purple-400" />
+            <h4 className="text-sm font-semibold text-white uppercase tracking-wider">Items Situacionales</h4>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {situationalItems.map(item => (
+              <div key={item.id} className="relative group" onMouseEnter={() => setActiveTooltip(`sit-${item.id}`)} onMouseLeave={() => setActiveTooltip(null)}>
+                <div className="w-10 h-10 rounded-lg border border-purple-500/50 overflow-hidden bg-gray-800 hover:border-purple-400 transition-colors cursor-pointer">
+                  <img src={getItemImageUrl(item.image.full)} alt={item.name} className="w-full h-full object-cover" />
+                </div>
+                {/* Tooltip */}
+                {activeTooltip === `sit-${item.id}` && (
+                  <div className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-3 w-60 p-3 bg-hextech-black rounded-lg shadow-2xl border border-purple-500/30 animate-in fade-in zoom-in-95 duration-200">
+                    <span className="font-bold text-purple-300 text-xs uppercase tracking-widest block truncate">{item.name}</span>
+                    <p className="text-[10px] text-gray-400 mt-1 italic">{item.plaintext || 'Objeto situacional.'}</p>
+                    {item.gold && (
+                      <div className="flex items-center justify-between pt-1 mt-1 border-t border-white/5 text-[10px]">
+                        <span className="text-gray-500">Costo</span>
+                        <span className="text-yellow-500 font-bold">{item.gold.total}G</span>
+                      </div>
                     )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+
+      {/* Runes - Compact Icon Row */}
+      {primaryTree && (
+        <div className="space-y-2">
+          <h4 className="text-sm font-semibold text-white uppercase tracking-wider">Runas</h4>
+          <div className="p-3 bg-gray-900/80 rounded-lg border border-gray-700">
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Primary Tree Icon */}
+              <div className="flex items-center gap-1.5" title={primaryTree.name}>
+                <img src={getRuneIconUrl(primaryTree.icon)} className="w-5 h-5" alt={primaryTree.name} />
+              </div>
+
+              {/* Keystone */}
+              {keystone && (
+                <div
+                  className="relative group w-10 h-10 rounded-full border-2 overflow-hidden bg-black/40 cursor-help flex-shrink-0"
+                  style={{ borderColor: RUNE_TREE_COLORS[primaryTree.key] + '80' }}
+                  title={keystone.name}
+                >
+                  <img src={getRuneIconUrl(keystone.icon)} className="w-full h-full" alt={keystone.name} />
+                  {/* Tooltip */}
+                  <div className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-48 p-2 bg-hextech-black rounded-lg shadow-xl border border-gray-600 text-center">
+                    <span className="text-xs font-bold" style={{ color: RUNE_TREE_COLORS[primaryTree.key] }}>{keystone.name}</span>
+                    <p className="text-[10px] text-gray-400 mt-0.5">{keystone.shortDesc.replace(/<[^>]*>?/gm, '')}</p>
+                  </div>
                 </div>
+              )}
 
-                {/* Primary Slots (Runes active in this tree excluding Keystone) */}
-                <div className="flex flex-col gap-4 items-center">
-                    {resolvedPrimaryRunes.filter(r => r.id !== keystone?.id).map(rune => (
-                        <div key={rune.id} className="relative group flex items-center gap-3">
-                             <div className="w-10 h-10 rounded-full bg-black/40 border border-gray-700 flex items-center justify-center group-hover:border-yellow-500/50 transition-colors">
-                                <img src={getRuneIconUrl(rune.icon)} className="w-8 h-8 opacity-90 group-hover:opacity-100" />
-                             </div>
-                             {/* Name Tooltip (Static for readability) */}
-                             <span className="text-sm text-gray-400 group-hover:text-gray-200 transition-colors">{rune.name}</span>
-                        </div>
-                    ))}
+              {/* Primary Runes (excluding keystone) */}
+              {resolvedPrimaryRunes.filter(r => r.id !== keystone?.id).map(rune => (
+                <div
+                  key={rune.id}
+                  className="relative group w-7 h-7 rounded-full bg-black/40 border border-gray-700 overflow-hidden cursor-help flex-shrink-0 hover:border-gray-500 transition-colors"
+                  title={rune.name}
+                >
+                  <img src={getRuneIconUrl(rune.icon)} className="w-full h-full" alt={rune.name} />
+                  <div className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-40 p-2 bg-hextech-black rounded-lg shadow-xl border border-gray-600 text-center">
+                    <span className="text-[10px] font-bold text-white">{rune.name}</span>
+                  </div>
                 </div>
-             </div>
+              ))}
 
-             {/* Secondary Tree Column */}
-             {secondaryTree && (
-                 <div className="flex-1 flex flex-col gap-6 border-l border-gray-700/50 pl-8 md:pl-12">
-                     <div className="flex items-center gap-3 pb-4 border-b border-gray-700/50">
-                        <img src={getRuneIconUrl(secondaryTree.icon)} className="w-6 h-6 opacity-80" />
-                        <span className="font-bold text-md text-gray-300">{secondaryTree.name}</span>
-                    </div>
+              {/* Divider */}
+              {secondaryTree && (
+                <div className="w-px h-6 bg-gray-600 mx-1 flex-shrink-0"></div>
+              )}
 
-                    {/* Secondary Active Slots */}
-                    <div className="flex flex-col gap-3">
-                        {resolvedSecondaryRunes.map(rune => (
-                             <div key={rune.id} className="flex items-center gap-3 group" onMouseEnter={() => setActiveTooltip(`rune-${rune.id}`)} onMouseLeave={() => setActiveTooltip(null)}>
-                                <div className="w-9 h-9 rounded-full bg-black/40 border border-gray-700 flex items-center justify-center group-hover:border-gray-500 transition-colors cursor-help">
-                                    <img src={getRuneIconUrl(rune.icon)} className="w-7 h-7" />
-                                </div>
-                                <span className="text-sm text-gray-400 group-hover:text-gray-300">{rune.name}</span>
-                                
-                                {/* Rune Tooltip */}
-                                {activeTooltip === `rune-${rune.id}` && (
-                                    <div className="absolute z-50 bottom-full left-0 mb-3 w-80 p-4 bg-hextech-black rounded-xl shadow-2xl border border-hextech-gold/30 animate-in fade-in zoom-in-95 duration-200">
-                                        <div className="flex items-center gap-3 mb-2 border-b border-white/10 pb-2">
-                                            <img src={getRuneIconUrl(rune.icon)} className="w-8 h-8" />
-                                            <span className="font-bold text-hextech-gold uppercase tracking-wider">{rune.name}</span>
-                                        </div>
-                                        <div className="space-y-3">
-                                            <p className="text-[11px] text-hextech-gold/90 font-medium bg-hextech-gold/5 p-2 rounded italic">
-                                                {rune.shortDesc.replace(/<[^>]*>?/gm, '')}
-                                            </p>
-                                            <div 
-                                                className="text-[10px] text-gray-400 leading-relaxed rune-desc-full"
-                                                dangerouslySetInnerHTML={{ __html: rune.longDesc }}
-                                            />
-                                        </div>
-                                    </div>
-                                )}
-                             </div>
-                        ))}
-                    </div>
+              {/* Secondary Tree Icon */}
+              {secondaryTree && (
+                <div className="flex items-center gap-1.5" title={secondaryTree.name}>
+                  <img src={getRuneIconUrl(secondaryTree.icon)} className="w-5 h-5 opacity-80" alt={secondaryTree.name} />
+                </div>
+              )}
 
-                    {/* Shards (Stat Mods) */}
-                    <div className="mt-4 pt-4 border-t border-gray-700/30 flex flex-col gap-2">
-                        <span className="text-xs uppercase tracking-wider text-gray-500 font-semibold">Stats</span>
-                        <div className="flex gap-2">
-                            {resolvedShards.map((shard, idx) => (
-                                <div key={idx} className="w-8 h-8 rounded bg-black/20 border border-gray-700 flex items-center justify-center">
-                                    <img src={`https://ddragon.leagueoflegends.com/cdn/img/${shard.icon}`} className="w-5 h-5" />
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                 </div>
-             )}
+              {/* Secondary Runes */}
+              {resolvedSecondaryRunes.map(rune => (
+                <div
+                  key={rune.id}
+                  className="relative group w-7 h-7 rounded-full bg-black/40 border border-gray-700 overflow-hidden cursor-help flex-shrink-0 hover:border-gray-500 transition-colors"
+                  title={rune.name}
+                >
+                  <img src={getRuneIconUrl(rune.icon)} className="w-full h-full" alt={rune.name} />
+                  <div className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-40 p-2 bg-hextech-black rounded-lg shadow-xl border border-gray-600 text-center">
+                    <span className="text-[10px] font-bold text-white">{rune.name}</span>
+                  </div>
+                </div>
+              ))}
+
+              {/* Shards Divider */}
+              {resolvedShards.length > 0 && (
+                <div className="w-px h-6 bg-gray-600 mx-1 flex-shrink-0"></div>
+              )}
+
+              {/* Stat Shards */}
+              {resolvedShards.map((shard, idx) => (
+                <div
+                  key={idx}
+                  className="w-6 h-6 rounded bg-black/20 border border-gray-700 flex items-center justify-center flex-shrink-0"
+                >
+                  <img src={`https://ddragon.leagueoflegends.com/cdn/img/${shard.icon}`} className="w-4 h-4" alt="shard" />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
 
       {/* Analysis Panel (Resume) */}
-      {analysis && isEditMode && (
+      {analysis && (
           <div className="bg-blue-900/20 rounded-lg p-4 border border-blue-700/50 animate-in slide-in-from-bottom-2">
             <div className="flex items-center gap-2 mb-3 text-blue-400">
                 <Target className="w-5 h-5" />
