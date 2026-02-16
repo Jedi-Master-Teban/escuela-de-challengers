@@ -2,6 +2,14 @@ const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const path = require('path');
+// Ensure CWD is the server directory so log files are written here, not in project root (which triggers Vite)
+try {
+  process.chdir(__dirname);
+  console.log(`[PROXY] Changed CWD to: ${process.cwd()}`);
+} catch (err) {
+  console.error('[PROXY] Failed to change CWD:', err);
+}
+
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
 const app = express();
@@ -140,7 +148,7 @@ app.get('/api/rank/:encryptedSummonerId', checkKey, async (req, res) => {
     const encId = req.params.encryptedSummonerId;
     const reg = req.query.region || 'la1';
     const errorMsg = `[RANK ERROR] ${new Date().toISOString()} - ${encId} (${reg}): ${error.response?.status} ${JSON.stringify(error.response?.data)}\n`;
-    fs.appendFileSync('proxy.log', errorMsg);
+    // fs.appendFileSync('proxy.log', errorMsg); // DISABLED: Triggers Vite Reload
     
     console.error('Error fetching rank:', error.response?.data || error.message);
     res.json([]); 
@@ -364,7 +372,7 @@ app.get('/api/scrape-rank/:region/:name/:tag', checkKey, async (req, res) => {
   } catch (error) {
     console.error('[SCRAPE] Error:', error.message);
     const fs = require('fs');
-    fs.appendFileSync('scrape_error.log', `[${new Date().toISOString()}] ${error.message}\n`);
+    // fs.appendFileSync('scrape_error.log', `[${new Date().toISOString()}] ${error.message}\n`); // DISABLED: Triggers Vite Reload
     if (browser) await browser.close();
     res.json([]); // Fail silently -> Unranked
   }
@@ -420,10 +428,12 @@ async function loadRuneData() {
 loadRuneData();
 
 // 6. Scrape Builds (U.GG)
-app.get('/api/scrape-builds/:champion/:role', checkKey, async (req, res) => {
+app.get('/api/scrape-builds/:champion/:role?', checkKey, async (req, res) => {
   const { champion, role } = req.params;
-  const url = `https://u.gg/lol/champions/${champion}/build/${role}`;
-  console.log(`[SCRAPE BUILD] Fetching default build for ${champion} (${role}) from ${url}`);
+  const url = role 
+    ? `https://u.gg/lol/champions/${champion}/build/${role}`
+    : `https://u.gg/lol/champions/${champion}/build`;
+  console.log(`[SCRAPE BUILD] Fetching build for ${champion} (${role || 'default'}) from ${url}`);
 
   let browser;
   try {
@@ -455,7 +465,11 @@ app.get('/api/scrape-builds/:champion/:role', checkKey, async (req, res) => {
     try {
       await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
       // Wait for ANY rune image -> implies page loaded enough
-      await page.waitForFunction(() => document.querySelectorAll('img[src*="perk-images"]').length > 0, { timeout: 15000 });
+      // Wait for build data or script tags to be ready
+      await page.waitForFunction(() => {
+          return document.querySelectorAll('img[src*="runes"], img[src*="perk-images"], img[src*="item"]').length > 5 || 
+                 (window.__SSR_DATA__ && Object.keys(window.__SSR_DATA__).length > 0);
+      }, { timeout: 15000 });
       
       // Auto-Scroll Iteratively to trigger lazy loading
       await page.evaluate(async () => {
@@ -475,14 +489,16 @@ app.get('/api/scrape-builds/:champion/:role', checkKey, async (req, res) => {
       return res.status(500).json({ error: 'Failed to load U.GG' });
     }
 
-    // Dump HTML for debugging
+    // Dump HTML for debugging (DISABLED: Triggers Vite Reload)
+    /*
     try {
         const content = await page.content();
-        require('fs').writeFileSync('debug_page.html', content);
+        // require('fs').writeFileSync('debug_page.html', content);
         console.log('[PROXY] Saved debug_page.html');
     } catch (err) {
         console.error('[PROXY] Failed to save debug HTML:', err.message);
     }
+    */
 
     // Extract SSR Data from Script Tag
     const ssrData = await page.evaluate(() => {
@@ -601,6 +617,9 @@ app.get('/api/scrape-builds/:champion/:role', checkKey, async (req, res) => {
                                             ssrRunes = [...ssrRunes, ...inner.stat_shards.active_shards];
                                         }
 
+                                        // Ensure numeric
+                                        ssrRunes = ssrRunes.map(Number).filter(id => !isNaN(id));
+
                                         // Winrate
                                         let wr = inner.win_rate || (inner.rec_core_items ? inner.rec_core_items.win_rate : 'N/A');
 
@@ -673,13 +692,29 @@ app.get('/api/scrape-builds/:champion/:role', checkKey, async (req, res) => {
     });
 
     if (ssrData && ssrData.items) {
-          // Construct the response object with structured items
+          // Detect the actual role from the final page URL
+          let detectedRole = role || null;
+          try {
+            const finalUrl = page.url();
+            // U.GG URLs: /lol/champions/{champ}/build/{role}  or  /lol/champions/{champ}/build
+            const roleMatch = finalUrl.match(/\/build\/([a-z_-]+)/i);
+            if (roleMatch && roleMatch[1]) {
+              const roleMap = {
+                'top': 'Top', 'jungle': 'Jungle', 'mid': 'Mid', 'middle': 'Mid',
+                'adc': 'Adc', 'support': 'Support', 'bot': 'Adc', 'supp': 'Support'
+              };
+              detectedRole = roleMap[roleMatch[1].toLowerCase()] || roleMatch[1];
+            }
+          } catch (e) {
+            console.warn('[PROXY] Could not detect role from URL');
+          }
+
           const response = {
             runeIds: finalRuneIds,
             items: finalItems,
-            // Also send flat itemIds for backwards compatibility
             itemIds: [...(finalItems.core || []), ...(finalItems.boots || []), ...(finalItems.situational || [])],
             winrate: finalWinrate,
+            role: detectedRole,
           };
           console.log('[SCRAPE BUILD] Helper Success (SSR):', response);
           await browser.close();
@@ -702,8 +737,8 @@ app.get('/api/scrape-builds/:champion/:role', checkKey, async (req, res) => {
         };
 
         const getAllActivePerks = () => {
-             // Grab every possible rune image
-             const allPerkImages = Array.from(document.querySelectorAll('img[src*="perk-images"], img[src*="/Styles/"], img[src*="Runes"]'));
+             // Grab every possible rune image (U.GG uses runes/ or perk-images/)
+             const allPerkImages = Array.from(document.querySelectorAll('img[src*="runes"], img[src*="perk-images"], img[src*="/Styles/"], img[src*="Runes"]'));
              
              return allPerkImages.filter(img => {
                  // Check img, parent, grandparent, great-grandparent
@@ -843,7 +878,15 @@ app.get('/api/scrape-builds/:champion/:role', checkKey, async (req, res) => {
     await browser.close();
 
     // Resolve IDs using server-side map
-    const runeIds = rawBuildData.runeFilenames.map(filename => runeIconMap[filename]).filter(id => id !== undefined);
+    // Resolve IDs using server-side map + numeric fallback
+    const runeIds = (rawBuildData.runeFilenames || []).map(filename => {
+        // 1. Try Map
+        if (runeIconMap[filename]) return runeIconMap[filename];
+        // 2. Try numeric extraction (e.g., "8000.png" -> 8000)
+        const numeric = parseInt(filename);
+        if (!isNaN(numeric) && numeric > 100) return numeric;
+        return undefined;
+    }).filter(id => id !== undefined);
     
     const uniqueRuneIds = [...new Set(runeIds)];
 
