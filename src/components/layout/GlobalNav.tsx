@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useRiotApi } from '../../hooks/useRiotApi';
 
 import logo from '../../assets/logo.png';
 import { Home, LayoutDashboard, BookOpen, FlaskConical, LogOut } from 'lucide-react';
@@ -15,6 +16,7 @@ export default function GlobalNav() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { account, summoner } = useRiotApi();
 
   const handleLogout = async () => {
     await signOut();
@@ -71,13 +73,29 @@ export default function GlobalNav() {
             })}
           </div>
 
-          {/* User Menu */}
+          {/* User & Riot Info */}
           <div className="flex items-center gap-4">
-            {user && (
-              <span className="text-gray-400 text-sm hidden lg:block">
-                {user.displayName || user.email}
-              </span>
+            <div className="flex flex-col items-end text-right">
+              {user && (
+                <span className="text-gray-400 text-[10px] hidden lg:block uppercase tracking-wider opacity-60">
+                  {user.displayName || user.email}
+                </span>
+              )}
+              {account && (
+                <span className="text-hextech-gold text-xs font-bold hidden lg:block">
+                  {account.gameName} <span className="text-hextech-gold/50 text-[10px]">#{account.tagLine}</span>
+                </span>
+              )}
+            </div>
+
+            {summoner?.profileIconId && (
+              <img 
+                src={`https://ddragon.leagueoflegends.com/cdn/16.3.1/img/profileicon/${summoner.profileIconId}.png`} 
+                alt="Profile" 
+                className="w-8 h-8 rounded-full border border-hextech-gold/50 shadow-[0_0_10px_rgba(200,155,60,0.2)]"
+              />
             )}
+
             <button 
               onClick={handleLogout}
               className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-500/10 transition-all duration-300 group"

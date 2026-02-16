@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Sword, Shield, Sparkles, Info, Loader2, Target } from 'lucide-react';
 import { getItemImageUrl, STAT_LABELS } from '../../services/dataDragon/itemService';
@@ -85,43 +85,74 @@ export default function ChampionBuild({ championName, buildData }: ChampionBuild
   // Loading & Tooltip
   const [loading, setLoading] = useState(true);
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
+  
+  // Track whether user explicitly changed role
+  const isUserRoleChange = useRef(false);
+  const lastChamp = useRef(championName);
 
   useEffect(() => {
     const controller = new AbortController();
     
     async function loadBuildData() {
-      // If we already have data for this role (via props or previous fetch), don't re-fetch unless force needed.
-      // But we need to ensure activeData matches selectedRole.
-      if (activeData && activeData.role.toLowerCase() === selectedRole.toLowerCase()) {
-         // Data is fresh for this role.
-         setLoading(false);
-         return;
+      setLoading(true);
+      console.log(`[ChampionBuild] Effect running. Champ: ${championName}, Last: ${lastChamp.current}, UserRoleChange: ${isUserRoleChange.current}, SelectedRole: ${selectedRole}`);
+
+      if (lastChamp.current !== championName) {
+         console.log(`[ChampionBuild] Champion changed! Resetting isUserRoleChange.`);
+         isUserRoleChange.current = false;
+         lastChamp.current = championName;
       }
 
-      setLoading(true);
       try {
         let currentBuildData = activeData;
         let fetchedRunes: number[] = [];
         let fetchedShards: number[] = [];
 
-        // If no data OR data is for wrong role, FETCH it
-        if ((!currentBuildData || currentBuildData.role.toLowerCase() !== selectedRole.toLowerCase()) && championName) {
+        if (championName) {
             try {
-                const res = await axios.get(
-                    `http://localhost:3001/api/scrape-builds/${championName}/${selectedRole.toLowerCase()}`, 
-                    { signal: controller.signal }
-                );
+                // If user changed role explicitly, pass role. Otherwise let U.GG pick default.
+                // ALSO avoid generic roles like 'fighter' or 'mage' which are invalid for scraping
+                const isGenericRole = ['fighter', 'marksman', 'tank', 'mage', 'assassin', 'support', 'mage_burst', 'mage_battle', 'support_enchanter', 'support_tank', 'jungle_fighter', 'jungle_assassin'].includes(selectedRole.toLowerCase());
+                
+                // SCRAPING DISABLED: The backend proxy is causing browser reloads/crashes.
+                // Using static fallback data until backend is fixed.
+                // const scrapeUrl = ...
+                
+                console.log(`[ChampionBuild] Scraping skipped for stability.`);
+                
+                // Stub response to trigger fallback logic
+                const res = { status: 200, data: null };
+                 
+                /* 
+                // Original fetching logic (Disabled)
+                const res = await axios.get(scrapeUrl, { 
+                    signal: controller.signal,
+                    timeout: 8000 
+                });
+                */
+                console.log("[ChampionBuild] Scrape Response:", res.status, res.data ? 'Data Received' : 'No Data');
                 
                 if (res.data && res.data.items) {
-                    const { items, runes = [], winrate } = res.data;
+                    const { items, runes = [], winrate, role: detectedRole } = res.data;
                     setWinrate(winrate);
                     
-                    // Adapt to internal structure
-                    fetchedRunes = runes.filter((id: number) => id < 5000);
-                    fetchedShards = runes.filter((id: number) => id >= 5000);
+                    // Use the role detected by the proxy (from U.GG URL)
+                    const effectiveRole = detectedRole || selectedRole;
+                    // if (!isUserRoleChange.current && detectedRole && detectedRole !== selectedRole) {
+                    //   console.log(`[ChampionBuild] Auto-updating role from ${selectedRole} to ${detectedRole}`);
+                    //   setSelectedRole(detectedRole);
+                    // }
+                    
+                    // Runes > 8000, Shards ~5000. Filter shards by known IDs.
+                    const shardIds = STAT_SHARDS.map(s => s.id);
+                    fetchedShards = runes.filter((id: number) => shardIds.includes(id));
+                    fetchedRunes = runes.filter((id: number) => !shardIds.includes(id));
+                    
+                    console.log("[ChampionBuild] Fetched Runes:", fetchedRunes);
+                    console.log("[ChampionBuild] Fetched Shards:", fetchedShards);
                     
                     const newData: BuildData = {
-                        role: selectedRole,
+                        role: effectiveRole,
                         description: `Build recomendada (${winrate})`,
                         items: {
                           core: items.core ? items.core.map(String) : [],
@@ -143,36 +174,14 @@ export default function ChampionBuild({ championName, buildData }: ChampionBuild
                 if (axios.isCancel(err)) return;
                 console.error("Failed to scrape build:", err);
                 
-                // Fallback 1: If we have static data, use it
-                if (buildData) {
-                    console.log("Using static build data as fallback");
-                    setFetchedBuildData(buildData);
-                    currentBuildData = buildData;
-                } else {
-                    // Fallback 2: Generate role-based recommendations
-                    console.log("Generating role-based recommendations as fallback");
-                    const roleKey = getRoleForChampion(championName || '');
-                    const roleRunes = getRoleBasedRunes(roleKey);
-                    
-                    const roleBasedData: BuildData = {
-                        role: selectedRole,
-                        description: `Build recomendada por rol (${roleKey}) - Datos generados automáticamente`,
-                        items: { core: [], boots: [], situational: [] },
-                        runes: roleRunes,
-                        tips: [
-                            `Esta build se basa en recomendaciones generales para el rol ${selectedRole}`,
-                            'Los items pueden variar según la composición enemiga',
-                            'Ajusta los items situacionales según sea necesario'
-                        ]
-                    };
-                    setFetchedBuildData(roleBasedData);
-                    currentBuildData = roleBasedData;
-                    
-                    // Load role-based items asynchronously
-                    loadRoleBasedItems(roleKey);
-                }
+                // Fallback logic REMOVED: User must click "Auto-Import" to try again.
+                // We do NOT want generic data automatically.
+                console.log("[ChampionBuild] Fallback skipped. Waiting for user import.");
             }
         }
+
+        // Reset the user role change flag after processing
+        isUserRoleChange.current = false;
 
         if (!currentBuildData) {
             setLoading(false);
@@ -196,61 +205,78 @@ export default function ChampionBuild({ championName, buildData }: ChampionBuild
 
         // Load Runes
         if (fetchedRunes.length > 0) {
-            // Dynamic resolution from simple IDs
-            const trees = new Set<number>();
-            const resolvedRunes: Rune[] = [];
-            
-            for (const id of fetchedRunes) {
-                const r = await getRuneById(id);
-                if (r) {
-                    resolvedRunes.push(r);
-                    const t = await getRuneTree(id);
-                    if (t) trees.add(t.id);
-                }
-            }
-
-            // Simple heuristic: Tree with Keystone (first row) is Primary
-            // Or just Tree with most runes (4 vs 2)
-            // Ideally we check if a rune is a keystone
-            
-            // Group runes by tree
-            const treeGroups: Record<number, Rune[]> = {};
-            for (const r of resolvedRunes) {
-                const t = await getRuneTree(r.id);
-                if (t) {
-                    if (!treeGroups[t.id]) treeGroups[t.id] = [];
-                    treeGroups[t.id].push(r);
-                }
-            }
-
-            const sortedTrees = Object.entries(treeGroups).sort((a, b) => b[1].length - a[1].length);
-            if (sortedTrees.length > 0) {
-                const pTreeId = parseInt(sortedTrees[0][0]);
-                const sTreeId = sortedTrees.length > 1 ? parseInt(sortedTrees[1][0]) : 0;
-
-                const pTree = await getRuneTreeById(pTreeId);
-                const sTree = await getRuneTreeById(sTreeId);
-
-                setPrimaryTree(pTree);
-                setSecondaryTree(sTree);
-                setResolvedPrimaryRunes(treeGroups[pTreeId] || []);
-                setResolvedSecondaryRunes(treeGroups[sTreeId] || []);
+            console.log("[ChampionBuild] Processing fetched runes:", fetchedRunes);
+            try {
+                const trees = new Set<number>();
+                const resolvedRunes: Rune[] = [];
                 
-                // Identify Keystone: Usually the first rune in the primary list (if ordered), or check slots
-                // For now, take the first one or logic from 'slots[0]'
-                 if (pTree) {
-                    const keystones = pTree.slots[0].runes.map(r => r.id);
-                    const foundKeystone = treeGroups[pTreeId].find(r => keystones.includes(r.id));
-                    setKeystone(foundKeystone || null);
+                for (const id of fetchedRunes) {
+                    try {
+                        const r = await getRuneById(id);
+                        if (r) {
+                            resolvedRunes.push(r);
+                            const t = await getRuneTree(id);
+                            if (t) {
+                                trees.add(t.id);
+                            } else {
+                                console.warn(`[ChampionBuild] No tree found for rune ${id}`);
+                            }
+                        } else {
+                             console.warn(`[ChampionBuild] Rune not found for ID ${id}`);
+                        }
+                    } catch (runeErr) {
+                        console.error(`[ChampionBuild] Error processing rune ${id}:`, runeErr);
+                    }
                 }
+
+                console.log("[ChampionBuild] Resolved Runes:", resolvedRunes);
+
+                const treeGroups: Record<number, Rune[]> = {};
+                for (const r of resolvedRunes) {
+                    try {
+                        const t = await getRuneTree(r.id);
+                        if (t) {
+                            if (!treeGroups[t.id]) treeGroups[t.id] = [];
+                            treeGroups[t.id].push(r);
+                        }
+                    } catch (treeErr) {
+                         console.error(`[ChampionBuild] Error grouping rune ${r.id} to tree:`, treeErr);
+                    }
+                }
+
+                console.log("[ChampionBuild] Tree Groups:", treeGroups);
+
+                const sortedTrees = Object.entries(treeGroups).sort((a, b) => b[1].length - a[1].length);
+                if (sortedTrees.length > 0) {
+                    const pTreeId = parseInt(sortedTrees[0][0]);
+                    const sTreeId = sortedTrees.length > 1 ? parseInt(sortedTrees[1][0]) : 0;
+
+                    const pTree = await getRuneTreeById(pTreeId);
+                    const sTree = await getRuneTreeById(sTreeId);
+                    
+                    console.log(`[ChampionBuild] Resolved Trees - Primary: ${pTree?.name}, Secondary: ${sTree?.name}`);
+
+                    setPrimaryTree(pTree);
+                    setSecondaryTree(sTree);
+                    setResolvedPrimaryRunes(treeGroups[pTreeId] || []);
+                    setResolvedSecondaryRunes(treeGroups[sTreeId] || []);
+                    
+                     if (pTree) {
+                        const keystones = pTree.slots[0].runes.map(r => r.id);
+                        const foundKeystone = treeGroups[pTreeId].find(r => keystones.includes(r.id));
+                        setKeystone(foundKeystone || null);
+                        console.log(`[ChampionBuild] Resolved Keystone: ${foundKeystone?.name}`);
+                    }
+                }
+
+                const shards = STAT_SHARDS.filter(s => fetchedShards.includes(s.id));
+                setResolvedShards(shards);
+                console.log("[ChampionBuild] Resolved Shards:", shards);
+
+            } catch (processErr) {
+                console.error("[ChampionBuild] Critical error in rune processing:", processErr);
             }
-
-             // Shards
-            const shards = STAT_SHARDS.filter(s => fetchedShards.includes(s.id));
-            setResolvedShards(shards);
-
         } else {
-            // Static JSON resolution
             const [primary, secondary, ks] = await Promise.all([
               getRuneTreeById(currentBuildData.runes.primary.tree),
               getRuneTreeById(currentBuildData.runes.secondary.tree),
@@ -261,7 +287,6 @@ export default function ChampionBuild({ championName, buildData }: ChampionBuild
             setSecondaryTree(secondary);
             setKeystone(ks);
 
-            // Resolve IDs to Runes
             if (primary) {
                  const pRunes = await Promise.all(currentBuildData.runes.primary.runes.map(id => getRuneById(id)));
                  setResolvedPrimaryRunes(pRunes.filter((r): r is Rune => r !== null));
@@ -280,11 +305,10 @@ export default function ChampionBuild({ championName, buildData }: ChampionBuild
 
     loadBuildData();
     return () => controller.abort();
-  }, [championName, selectedRole]); // Added selectedRole to trigger refresh on role change
+  }, [championName, selectedRole]);
 
-  // Mode State Persistence Logic
+  // Sync selectedRole when buildData changes (e.g. champion change from props)
   useEffect(() => {
-    // Sync selectedRole when buildData changes (e.g. champion change)
     if (buildData?.role) {
         setSelectedRole(buildData.role);
     }
@@ -468,12 +492,14 @@ export default function ChampionBuild({ championName, buildData }: ChampionBuild
   };
 
   if (loading || !activeData) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <div className="w-8 h-8 border-2 border-yellow-500/30 border-t-yellow-500 rounded-full animate-spin"></div>
-        {!activeData && !loading && <span className="ml-3 text-gray-400 text-xs">Cargando datos...</span>}
-      </div>
-    );
+    // Commented out loading spinner to simplify debugging
+    console.log("Render: loading=", loading, "activeData=", !!activeData);
+    // return (
+    //   <div className="flex items-center justify-center p-8">
+    //     <div className="w-8 h-8 border-2 border-yellow-500/30 border-t-yellow-500 rounded-full animate-spin"></div>
+    //     {!activeData && !loading && <span className="ml-3 text-gray-400 text-xs">Cargando datos...</span>}
+    //   </div>
+    // );
   }
 
   return (
@@ -506,6 +532,7 @@ export default function ChampionBuild({ championName, buildData }: ChampionBuild
                     key={roleKey}
                     type="button"
                     onClick={() => {
+                      isUserRoleChange.current = true;
                       setSelectedRole(roleKey.charAt(0).toUpperCase() + roleKey.slice(1));
                       setIsDropdownOpen(false);
                     }}
@@ -546,12 +573,34 @@ export default function ChampionBuild({ championName, buildData }: ChampionBuild
 
         {/* Build description */}
         <p className="text-xs text-gray-400 mt-2 italic line-clamp-1">
-          {activeData.description}
+          {activeData?.description || 'Build recomendada'}
         </p>
       </div>
+      
+      {/* Empty State Placeholder */}
+      {!loading && !activeData && coreItems.length === 0 && (
+        <div className="flex flex-col items-center justify-center p-8 border border-dashed border-gray-700 rounded-lg bg-gray-900/30">
+          <div className="w-16 h-16 rounded-full bg-hextech-gold/10 flex items-center justify-center mb-4">
+            <Sparkles className="w-8 h-8 text-hextech-gold" />
+          </div>
+          <h3 className="text-gray-300 font-semibold mb-2">Build no cargada</h3>
+          <p className="text-gray-500 text-xs text-center max-w-[250px] mb-4">
+            Presiona el botón <span className="text-yellow-400">Importar Build</span> para obtener los datos más recientes.
+          </p>
+          <button
+            onClick={handleAutoImport}
+            className="px-4 py-2 bg-hextech-gold/20 hover:bg-hextech-gold/30 text-hextech-gold text-xs font-bold uppercase tracking-wider rounded border border-hextech-gold/40 transition-all hover:scale-105"
+          >
+            Importar Ahora
+          </button>
+        </div>
+      )}
 
-      {/* Core Items */}
-      <div className="space-y-3">
+      {/* Content (Only show if we have data) */}
+      {(activeData || coreItems.length > 0) && (
+        <>
+            {/* Core Items */}
+            <div className="space-y-3">
          <div className="flex items-center gap-2">
           <Sword className="w-4 h-4 text-yellow-500" />
           <h4 className="text-sm font-semibold text-white uppercase tracking-wider">Items Core</h4>
@@ -649,13 +698,14 @@ export default function ChampionBuild({ championName, buildData }: ChampionBuild
       )}
 
 
-      {/* Runes - Compact Icon Row */}
+      {/* Runes - Vertical Layout */}
       {primaryTree && (
         <div className="space-y-2">
           <h4 className="text-sm font-semibold text-white uppercase tracking-wider">Runas</h4>
-          <div className="p-3 bg-gray-900/80 rounded-lg border border-gray-700">
-            <div className="flex items-center gap-2 flex-wrap">
-              {/* Primary Tree Icon */}
+          <div className="p-3 bg-gray-900/80 rounded-lg border border-gray-700 space-y-3">
+
+            {/* Primary Row */}
+            <div className="flex items-center gap-2">
               <div className="flex items-center gap-1.5" title={primaryTree.name}>
                 <img src={getRuneIconUrl(primaryTree.icon)} className="w-5 h-5" alt={primaryTree.name} />
               </div>
@@ -664,14 +714,13 @@ export default function ChampionBuild({ championName, buildData }: ChampionBuild
               {keystone && (
                 <div
                   className="relative group w-10 h-10 rounded-full border-2 overflow-hidden bg-black/40 cursor-help flex-shrink-0"
-                  style={{ borderColor: RUNE_TREE_COLORS[primaryTree.key] + '80' }}
+                  style={{ borderColor: (primaryTree?.key && RUNE_TREE_COLORS[primaryTree.key]) ? RUNE_TREE_COLORS[primaryTree.key] + '80' : '#444' }}
                   title={keystone.name}
                 >
                   <img src={getRuneIconUrl(keystone.icon)} className="w-full h-full" alt={keystone.name} />
-                  {/* Tooltip */}
                   <div className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-48 p-2 bg-hextech-black rounded-lg shadow-xl border border-gray-600 text-center">
-                    <span className="text-xs font-bold" style={{ color: RUNE_TREE_COLORS[primaryTree.key] }}>{keystone.name}</span>
-                    <p className="text-[10px] text-gray-400 mt-0.5">{keystone.shortDesc.replace(/<[^>]*>?/gm, '')}</p>
+                    <span className="text-xs font-bold" style={{ color: (primaryTree?.key && RUNE_TREE_COLORS[primaryTree.key]) || '#eda63b' }}>{keystone.name}</span>
+                    <p className="text-[10px] text-gray-400 mt-0.5">{keystone.shortDesc ? keystone.shortDesc.replace(/<[^>]*>?/gm, '') : 'Runa clave poderosa.'}</p>
                   </div>
                 </div>
               )}
@@ -689,48 +738,45 @@ export default function ChampionBuild({ championName, buildData }: ChampionBuild
                   </div>
                 </div>
               ))}
+            </div>
 
-              {/* Divider */}
-              {secondaryTree && (
-                <div className="w-px h-6 bg-gray-600 mx-1 flex-shrink-0"></div>
-              )}
-
-              {/* Secondary Tree Icon */}
-              {secondaryTree && (
+            {/* Secondary Row */}
+            {secondaryTree && (
+              <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1.5" title={secondaryTree.name}>
                   <img src={getRuneIconUrl(secondaryTree.icon)} className="w-5 h-5 opacity-80" alt={secondaryTree.name} />
                 </div>
-              )}
 
-              {/* Secondary Runes */}
-              {resolvedSecondaryRunes.map(rune => (
-                <div
-                  key={rune.id}
-                  className="relative group w-7 h-7 rounded-full bg-black/40 border border-gray-700 overflow-hidden cursor-help flex-shrink-0 hover:border-gray-500 transition-colors"
-                  title={rune.name}
-                >
-                  <img src={getRuneIconUrl(rune.icon)} className="w-full h-full" alt={rune.name} />
-                  <div className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-40 p-2 bg-hextech-black rounded-lg shadow-xl border border-gray-600 text-center">
-                    <span className="text-[10px] font-bold text-white">{rune.name}</span>
+                {resolvedSecondaryRunes.map(rune => (
+                  <div
+                    key={rune.id}
+                    className="relative group w-7 h-7 rounded-full bg-black/40 border border-gray-700 overflow-hidden cursor-help flex-shrink-0 hover:border-gray-500 transition-colors"
+                    title={rune.name}
+                  >
+                    <img src={getRuneIconUrl(rune.icon)} className="w-full h-full" alt={rune.name} />
+                    <div className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-40 p-2 bg-hextech-black rounded-lg shadow-xl border border-gray-600 text-center">
+                      <span className="text-[10px] font-bold text-white">{rune.name}</span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+            )}
 
-              {/* Shards Divider */}
-              {resolvedShards.length > 0 && (
-                <div className="w-px h-6 bg-gray-600 mx-1 flex-shrink-0"></div>
-              )}
+            {/* Stat Shards Row */}
+            {resolvedShards.length > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-gray-500 uppercase tracking-wide w-5 text-center" title="Stats">✦</span>
+                {resolvedShards.map((shard, idx) => (
+                  <div
+                    key={idx}
+                    className="w-6 h-6 rounded bg-black/20 border border-gray-700 flex items-center justify-center flex-shrink-0"
+                  >
+                    <img src={`https://ddragon.leagueoflegends.com/cdn/img/${shard.icon}`} className="w-4 h-4" alt="shard" />
+                  </div>
+                ))}
+              </div>
+            )}
 
-              {/* Stat Shards */}
-              {resolvedShards.map((shard, idx) => (
-                <div
-                  key={idx}
-                  className="w-6 h-6 rounded bg-black/20 border border-gray-700 flex items-center justify-center flex-shrink-0"
-                >
-                  <img src={`https://ddragon.leagueoflegends.com/cdn/img/${shard.icon}`} className="w-4 h-4" alt="shard" />
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       )}
@@ -783,6 +829,9 @@ export default function ChampionBuild({ championName, buildData }: ChampionBuild
         type={toast.type}
         onClose={() => setToast(prev => ({ ...prev, show: false }))}
       />
+      </>
+      )}
     </div>
   );
 }
+

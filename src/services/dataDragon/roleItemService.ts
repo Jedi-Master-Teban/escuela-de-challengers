@@ -1,4 +1,4 @@
-import { getItemsByTag, getSummonersRiftItems, type Item } from './itemService';
+import { getSummonersRiftItems, type Item } from './itemService';
 
 /**
  * Role-based item recommendations for when web scraping fails.
@@ -42,7 +42,28 @@ const ROLE_RECOMMENDATIONS: Record<string, { core: string[]; situational: string
     boots: ['3020', '3047'] // Sorcerers, Steelcaps
   },
   
-  // Fighter / Juggernaut
+  // Fighter: Juggernaut (Immobile, Durable, High Damage) - e.g. Garen, Darius, Sett, Morde
+  fighter_juggernaut: {
+      core: ['3078', '3742', '3053', '6630'], // Trinity, Titanic, Hollow, Goredrinker(historical) -> Stridebreaker
+      situational: ['6333', '3139', '3072', '3065', '3075'], // DD, Mortal, BT, Frozen Heart, Sunfire
+      boots: ['3047', '3111', '3009'] // Steelcaps, Mercs, Swiftness
+  },
+
+  // Fighter: Diver (Mobile, Engage) - e.g. Vi, Hecarim, Jarvan, Lee Sin
+  fighter_diver: {
+      core: ['3078', '3156', '3053'], // Trinity, Maw/Sterak, Hollow
+      situational: ['6333', '3139', '3072', '3161', '3026'], // DD, Mortal, BT, Shojin, GA
+      boots: ['3047', '3111', '3158'] // Steelcaps, Mercs, Ionian
+  },
+
+  // Fighter: Skirmisher (High DPS, Squishy) - e.g. Yasuo, Yone, Fiora, Gwen
+  fighter_skirmisher: {
+    core: ['3078', '3153', '6676'], // Trinity, BotRK, Setup
+    situational: ['6333', '3072', '3139', '3026', '3161'], // DD, BT, Mortal, GA, Shojin
+    boots: ['3006', '3047', '3111'] // Berserker, Steelcaps, Mercs
+  },
+  
+  // Generic Fighter (Fallback)
   fighter: {
     core: ['3078', '3053', '3742'], // Trinity, Hollow, Titanic
     situational: ['6333', '3139', '3072', '3051', '3143', '3161'], // DD, Mortal, BT, BC, Stride, Jaks
@@ -82,6 +103,13 @@ const ROLE_RECOMMENDATIONS: Record<string, { core: string[]; situational: string
     core: ['6693', '6692', '6691'], // Prowlers, Eclipse, Profane
     situational: ['3156', '3139', '3814', '3072', '6333'], // GB, Mortal, DD, LDR
     boots: ['3158', '3047'] // Ionian, Steelcaps
+  },
+
+  // Default Fallback
+  default: {
+    core: ['3078', '3053', '3742'], // Trinity, Hollow, Titanic (Fighter default)
+    situational: ['6333', '3139', '3072', '3051', '3143', '3161'],
+    boots: ['3047', '3111', '3158']
   }
 };
 
@@ -121,8 +149,12 @@ export function getRoleForChampion(championRole: string): string {
     'rengar': 'assassin_ad',
     'talon': 'assassin_ad',
     'nidalee': 'jungle_assassin',
-    'reksai': 'jungle_fighter',
-    'vi': 'fighter',
+    'reksai': 'fighter_diver',
+    'vi': 'fighter_diver',
+    'leesin': 'fighter_diver',
+    'jarvaniv': 'fighter_diver',
+    'hecarim': 'fighter_diver',
+    'xin zhao': 'fighter_diver',
     
     // Mages Burst
     'lux': 'mage_burst',
@@ -134,25 +166,38 @@ export function getRoleForChampion(championRole: string): string {
     'viktor': 'mage_burst',
     
     // Fighters
-    'yasuo': 'fighter',
-    'yone': 'fighter',
-    'irelia': 'fighter',
-    'riven': 'fighter',
-    'fiora': 'fighter',
-    'camille': 'fighter',
-    'jax': 'fighter',
-    'tryndamere': 'fighter',
-    'udyr': 'jungle_fighter',
-    'xinzhao': 'jungle_fighter',
-    'leesin': 'jungle_fighter',
-    'hecarim': 'jungle_fighter',
+    'yasuo': 'fighter_skirmisher',
+    'yone': 'fighter_skirmisher',
+    'irelia': 'fighter_diver',
+    'riven': 'fighter_skirmisher',
+    'fiora': 'fighter_skirmisher',
+    'camille': 'fighter_diver',
+    'jax': 'fighter_skirmisher',
+    'tryndamere': 'fighter_skirmisher',
+    'gwen': 'fighter_skirmisher',
+    'udyr': 'fighter_juggernaut',
+    'xinzhao': 'fighter_diver',
+    'leesin': 'fighter_diver',
+    'hecarim': 'fighter_diver',
     'graves': 'marksman',
+    'darius': 'fighter_juggernaut',
+    'garen': 'fighter_juggernaut',
+    'sett': 'fighter_juggernaut',
+    'mordekaiser': 'fighter_juggernaut',
+    'illaoi': 'fighter_juggernaut',
+    'aatrox': 'fighter_juggernaut', // Aatrox is kinda juggernaut/diver hybrid, but builds bruiser
+    'renekton': 'fighter_diver',
+    'nasus': 'fighter_juggernaut',
+    'yorick': 'fighter_juggernaut',
+    'urgot': 'fighter_juggernaut',
+    'volibear': 'fighter_juggernaut',
+    'drmundo': 'fighter_juggernaut',
     
     // Tanks
     'ornn': 'tank',
     'malphite': 'tank',
-    'sejuani': 'jungle_fighter',
-    'zac': 'jungle_fighter',
+    'leesin': 'fighter_diver',
+    'hecarim': 'fighter_diver',
     'rammus': 'tank',
     'leona': 'support_tank',
     'nautilus': 'tank',

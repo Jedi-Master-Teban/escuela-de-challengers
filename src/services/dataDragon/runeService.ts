@@ -104,6 +104,7 @@ export async function getRuneTrees(): Promise<RuneTree[]> {
   const data = await response.json();
   
   runesCache = data;
+  console.log(`[runeService] Loaded ${data.length} rune trees from Data Dragon.`);
   return data;
 }
 
@@ -188,6 +189,7 @@ export async function getRuneTree(runeId: number): Promise<RuneTree | null> {
     }
   }
   
+  console.warn(`[runeService] Rune ID ${runeId} not found in any tree.`);
   return null;
 }
 
