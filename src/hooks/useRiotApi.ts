@@ -93,7 +93,7 @@ export function useRiotApi() {
     else localStorage.removeItem('riot_matches');
   }, [matches]);
 
-  const PROXY_URL = 'http://localhost:3001/api';
+  const PROXY_URL = `${import.meta.env.VITE_PROXY_URL || 'http://localhost:3001'}/api`;
 
   // Helper to transform Riot Match DTO to our Dashboard MatchData
   const transformMatchData = (riotMatch: any, puuid: string): MatchData | null => {

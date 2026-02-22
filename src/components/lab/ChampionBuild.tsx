@@ -375,7 +375,8 @@ export default function ChampionBuild({ championName, buildData }: ChampionBuild
       if (!championName) return;
       setImportLoading(true);
       try {
-          const response = await fetch(`http://localhost:3001/api/scrape-builds/${championName.toLowerCase()}/${selectedRole.toLowerCase()}`);
+          const proxyBase = import.meta.env.VITE_PROXY_URL || 'http://localhost:3001';
+          const response = await fetch(`${proxyBase}/api/scrape-builds/${championName.toLowerCase()}/${selectedRole.toLowerCase()}`);
           const data = await response.json();
           
           if (data.runeIds && data.runeIds.length > 0) {
