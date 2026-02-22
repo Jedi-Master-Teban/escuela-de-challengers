@@ -11,27 +11,8 @@ import MidIcon from '../../assets/icons/roles/Middle_icon.png';
 import AdcIcon from '../../assets/icons/roles/Bottom_icon.png';
 import SupportIcon from '../../assets/icons/roles/Support_icon.png';
 
-// Synergy explanations for champion combinations
-const SYNERGY_EXPLANATIONS: Record<string, { combo: string; description: string }[]> = {
-  'pyke-nami': [
-    { combo: '🐟 Pyke + Nami', description: "'Bubble into Pitchfork' - Nami Q permite que Pyke golpee su Q con daño extendido." }
-  ],
-  'yasuo-knockup': [
-    { combo: '🌊 Yasuo + Knockups', description: "Tu ultimate se beneficia de cualquier crowd control enemigo para extender duración." }
-  ],
-  'leona-adc': [
-    { combo: '⭐ Leona + ADC', description: "Leona puede engage desde bushes mientras tu ADC fulltrinea desde distancia segura." }
-  ],
-  'thresh-draven': [
-    { combo: '🪓 Thresh + Draven', description: "Thresh puede catchear enemigos en la E de Draven para combos garantizados." }
-  ],
-  'malphite-aoe': [
-    { combo: '💥 Malphite + AOE', description: "Tu engage masivo permite que damage dealers maximicen su output." }
-  ],
-  'lulu-hypercarry': [
-    { combo: '🧚 Lulu + Hypercarries', description: "Protege a tu hypercarry mientras escala y hace cleanup en late game." }
-  ],
-};
+
+
 
 export default function SynergyTab() {
   const [team, setTeam] = useState<string[]>(['', '', '', '', '']); // 5 champions

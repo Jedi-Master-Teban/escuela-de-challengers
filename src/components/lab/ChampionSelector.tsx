@@ -15,7 +15,7 @@ interface ChampionSelectorProps {
 
 // Removed unused ROLES constant
 
-export function ChampionSelector({ selectedChampion, onSelect, roleFilter = 'All', placeholder = 'Seleccionar' }: ChampionSelectorProps) {
+export function ChampionSelector({ selectedChampion, onSelect, roleFilter: _roleFilter = 'All', placeholder = 'Seleccionar' }: ChampionSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   

@@ -31,7 +31,7 @@ export default function LabPage() {
   const [detailTab, setDetailTab] = useState<DetailTab>('stats');
   const [runeTab, setRuneTab] = useState<RuneTab>('browse');
 
-  const hasBuild = selectedChampion && (championBuilds as Record<string, BuildData>)[selectedChampion.name];
+
 
   const mainTabs = [
     { id: 'champions' as const, label: 'Campeones', icon: Sword },

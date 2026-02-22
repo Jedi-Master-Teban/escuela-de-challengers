@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { getRuneTrees, RuneTree, STAT_SHARDS } from '../services/dataDragon/runeService';
+import { getRuneTrees, STAT_SHARDS } from '../services/dataDragon/runeService';
+import type { RuneTree } from '../services/dataDragon/runeService';
 
 export function useRunes() {
   const [runeTrees, setRuneTrees] = useState<RuneTree[]>([]);
