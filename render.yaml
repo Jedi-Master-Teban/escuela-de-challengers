@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: escuela-de-challengers
+    runtime: docker
+    rootDir: server
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: RIOT_API_KEY
+        sync: false          # Set manually in Render dashboard
+      - key: ALLOWED_ORIGIN
+        sync: false          # Set manually in Render dashboard
+      - key: PORT
+        value: 10000
