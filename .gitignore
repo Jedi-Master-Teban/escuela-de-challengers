@@ -1,4 +1,4 @@
-# Logs
+# === Logs ===
 logs
 *.log
 npm-debug.log*
@@ -7,18 +7,43 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# === Dependencies ===
 node_modules
+
+# === Build outputs ===
 dist
 dist-ssr
-*.local
 
-# Editor directories and files
+# === Environment Variables (NEVER commit real .env files) ===
+.env
+.env.local
+.env.*.local
+server/.env
+server/.env.local
+
+# === Debug / Dev Artifacts ===
+server/debug_page.html
+server/scrape_debug.html
+server/proxy.log
+server/debug_proxy.log
+server/proxy_debug.log
+server/scrape_error.log
+debug_page.html
+
+# === macOS Metadata ===
+**/.DS_Store
+.DS_Store
+
+# === Editor directories and files ===
 .vscode/*
 !.vscode/extensions.json
 .idea
-.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*.local
+
+# === Stray dev assets ===
+build_ui_new.png

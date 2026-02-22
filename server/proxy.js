@@ -13,9 +13,15 @@ try {
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
-app.use(cors());
+// CORS: restrict to the local dev frontend or a configurable production origin
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || 'http://localhost:5173';
+app.use(cors({
+  origin: ALLOWED_ORIGIN,
+  methods: ['GET', 'POST'],
+  credentials: false,
+}));
 app.use(express.json());
 
 const RIOT_API_KEY = process.env.RIOT_API_KEY;
@@ -908,5 +914,6 @@ app.get('/api/scrape-builds/:champion/:role?', checkKey, async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`[PROXY] Server running on http://localhost:${PORT}`);
+  console.log(`[PROXY] Allowed CORS origin: ${ALLOWED_ORIGIN}`);
 });
