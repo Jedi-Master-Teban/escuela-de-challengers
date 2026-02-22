@@ -1,13 +1,10 @@
 import type {
   Achievement,
-  Badge,
   GamificationProfile,
   Leaderboard,
   Reward,
   UserRank,
   AchievementProgress,
-  AchievementCategory,
-  AchievementRarity,
 } from '../types/gamification';
 
 // Mock achievements database
@@ -262,7 +259,7 @@ class GamificationService {
   }
 
   // Get achievement progress
-  async getAchievementProgress(userId: string): Promise<AchievementProgress[]> {
+  async getAchievementProgress(_userId: string): Promise<AchievementProgress[]> {
     await this.simulateDelay();
     
     // Mock progress data

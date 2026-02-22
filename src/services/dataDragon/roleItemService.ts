@@ -177,8 +177,6 @@ export function getRoleForChampion(championRole: string): string {
     'gwen': 'fighter_skirmisher',
     'udyr': 'fighter_juggernaut',
     'xinzhao': 'fighter_diver',
-    'leesin': 'fighter_diver',
-    'hecarim': 'fighter_diver',
     'graves': 'marksman',
     'darius': 'fighter_juggernaut',
     'garen': 'fighter_juggernaut',
@@ -196,8 +194,6 @@ export function getRoleForChampion(championRole: string): string {
     // Tanks
     'ornn': 'tank',
     'malphite': 'tank',
-    'leesin': 'fighter_diver',
-    'hecarim': 'fighter_diver',
     'rammus': 'tank',
     'leona': 'support_tank',
     'nautilus': 'tank',
@@ -207,7 +203,6 @@ export function getRoleForChampion(championRole: string): string {
     'shen': 'tank',
     'poppy': 'tank',
     'sion': 'tank',
-    'mordekaiser': 'fighter',
     
     // Supports
     'soraka': 'support_enchanter',
