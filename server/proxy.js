@@ -15,10 +15,26 @@ require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// CORS: restrict to the local dev frontend or a configurable production origin
+// CORS: accept localhost dev + any configured production origin(s)
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || 'http://localhost:5173';
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  ...ALLOWED_ORIGIN.split(',').map(o => o.trim().replace(/\/$/, '')), // strip trailing slash
+];
+
 app.use(cors({
-  origin: ALLOWED_ORIGIN,
+  origin: (origin, callback) => {
+    // Allow requests with no origin (curl, Render health checks, etc.)
+    if (!origin) return callback(null, true);
+    const normalized = origin.replace(/\/$/, '');
+    if (allowedOrigins.includes(normalized)) {
+      callback(null, true);
+    } else {
+      console.warn(`[CORS] Blocked origin: ${origin}`);
+      callback(new Error(`CORS: origin ${origin} not allowed`));
+    }
+  },
   methods: ['GET', 'POST'],
   credentials: false,
 }));
@@ -47,6 +63,17 @@ const checkKey = (req, res, next) => {
   }
   next();
 };
+
+// Health check endpoint — useful for verifying Render is alive
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    hasRiotKey: !!RIOT_API_KEY,
+    allowedOrigins,
+    uptime: process.uptime()
+  });
+});
+
 
 // 1. Get Account by Riot ID -> Returns PUUID
 app.get('/api/account/:gameName/:tagLine', checkKey, async (req, res) => {
