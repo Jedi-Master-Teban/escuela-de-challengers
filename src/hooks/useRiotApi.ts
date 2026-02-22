@@ -282,7 +282,7 @@ export function useRiotApi() {
       console.error(err);
       // Distinguish proxy-down from API errors
       if (err.code === 'ERR_NETWORK' || err.message?.includes('Network Error')) {
-        setError('No se puede conectar al servidor proxy. Asegúrate de ejecutar: cd server && node proxy.js');
+        setError('No se puede conectar al servidor. El servicio puede estar iniciando, espera unos segundos e intenta de nuevo.');
       } else if (err.response?.status === 403) {
         setError('API Key de Riot inválida o expirada. Verifica RIOT_API_KEY en server/.env');
       } else if (err.response?.status === 404) {
