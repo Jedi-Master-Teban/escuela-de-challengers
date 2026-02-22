@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+
 import { Sword, Shield, Sparkles, Info, Loader2, Target } from 'lucide-react';
 import { getItemImageUrl, STAT_LABELS } from '../../services/dataDragon/itemService';
 import type { Item } from '../../services/dataDragon/itemService';
@@ -7,7 +7,7 @@ import { getRuneIconUrl, RUNE_TREE_COLORS, STAT_SHARDS } from '../../services/da
 import { getItemById } from '../../services/dataDragon/itemService';
 import { getRuneTreeById, getRuneById, getRuneTree } from '../../services/dataDragon/runeService';
 import type { RuneTree, Rune } from '../../services/dataDragon/runeService';
-import { getRoleForChampion, getRoleBasedItems, getRoleBasedRunes } from '../../services/dataDragon/roleItemService';
+
 import { HextechToast } from '../hextech';
 import type { ToastType } from '../hextech/HextechToast';
 // Import Role Icons
@@ -57,16 +57,9 @@ export default function ChampionBuild({ championName, buildData }: ChampionBuild
     type: 'info' 
   });
 
-  // Data State
-  const [fetchedBuildData, setFetchedBuildData] = useState<BuildData | null>(null);
-  
-  // Derived Data (Prop takes precedence, then fetched)
-  // Derived Data (Fetched takes precedence if it matches selected role interaction)
-  // Logic: If user clicked a role, fetching updates 'fetchedBuildData'. 
-  // If 'fetchedBuildData' exists and matches role, use it. Else fall back to props.
-  const activeData = (fetchedBuildData && fetchedBuildData.role.toLowerCase() === selectedRole.toLowerCase()) 
-      ? fetchedBuildData 
-      : buildData;
+  // activeData always comes from props; auto-scraping is disabled (use Importar Build button)
+  const activeData = buildData;
+
 
   const [coreItems, setCoreItems] = useState<Item[]>([]);
   const [boots, setBoots] = useState<Item[]>([]);
@@ -108,77 +101,8 @@ export default function ChampionBuild({ championName, buildData }: ChampionBuild
         let fetchedRunes: number[] = [];
         let fetchedShards: number[] = [];
 
-        if (championName) {
-            try {
-                // If user changed role explicitly, pass role. Otherwise let U.GG pick default.
-                // ALSO avoid generic roles like 'fighter' or 'mage' which are invalid for scraping
-                const isGenericRole = ['fighter', 'marksman', 'tank', 'mage', 'assassin', 'support', 'mage_burst', 'mage_battle', 'support_enchanter', 'support_tank', 'jungle_fighter', 'jungle_assassin'].includes(selectedRole.toLowerCase());
-                
-                // SCRAPING DISABLED: The backend proxy is causing browser reloads/crashes.
-                // Using static fallback data until backend is fixed.
-                // const scrapeUrl = ...
-                
-                console.log(`[ChampionBuild] Scraping skipped for stability.`);
-                
-                // Stub response to trigger fallback logic
-                const res = { status: 200, data: null };
-                 
-                /* 
-                // Original fetching logic (Disabled)
-                const res = await axios.get(scrapeUrl, { 
-                    signal: controller.signal,
-                    timeout: 8000 
-                });
-                */
-                console.log("[ChampionBuild] Scrape Response:", res.status, res.data ? 'Data Received' : 'No Data');
-                
-                if (res.data && res.data.items) {
-                    const { items, runes = [], winrate, role: detectedRole } = res.data;
-                    setWinrate(winrate);
-                    
-                    // Use the role detected by the proxy (from U.GG URL)
-                    const effectiveRole = detectedRole || selectedRole;
-                    // if (!isUserRoleChange.current && detectedRole && detectedRole !== selectedRole) {
-                    //   console.log(`[ChampionBuild] Auto-updating role from ${selectedRole} to ${detectedRole}`);
-                    //   setSelectedRole(detectedRole);
-                    // }
-                    
-                    // Runes > 8000, Shards ~5000. Filter shards by known IDs.
-                    const shardIds = STAT_SHARDS.map(s => s.id);
-                    fetchedShards = runes.filter((id: number) => shardIds.includes(id));
-                    fetchedRunes = runes.filter((id: number) => !shardIds.includes(id));
-                    
-                    console.log("[ChampionBuild] Fetched Runes:", fetchedRunes);
-                    console.log("[ChampionBuild] Fetched Shards:", fetchedShards);
-                    
-                    const newData: BuildData = {
-                        role: effectiveRole,
-                        description: `Build recomendada (${winrate})`,
-                        items: {
-                          core: items.core ? items.core.map(String) : [],
-                          boots: items.boots ? items.boots.map(String) : [],
-                          situational: items.situational ? items.situational.map(String) : []
-                        },
-                        runes: {
-                            primary: { tree: 0, keystone: 0, runes: [] }, 
-                            secondary: { tree: 0, runes: [] }
-                        },
-                        tips: []
-                    };
-                    setFetchedBuildData(newData);
-                    currentBuildData = newData;
-                } else {
-                     throw new Error("Invalid build data received");
-                }
-            } catch (err) {
-                if (axios.isCancel(err)) return;
-                console.error("Failed to scrape build:", err);
-                
-                // Fallback logic REMOVED: User must click "Auto-Import" to try again.
-                // We do NOT want generic data automatically.
-                console.log("[ChampionBuild] Fallback skipped. Waiting for user import.");
-            }
-        }
+        // Auto-scraping on load is disabled for stability.
+        // Use the "Importar Build" button (handleAutoImport) to fetch live data from the proxy.
 
         // Reset the user role change flag after processing
         isUserRoleChange.current = false;
@@ -358,16 +282,7 @@ export default function ChampionBuild({ championName, buildData }: ChampionBuild
   };
 
 
-   // Load role-based items as fallback
-   const loadRoleBasedItems = async (roleKey: string) => {
-       try {
-           const roleItems = await getRoleBasedItems(roleKey);
-           setCoreItems(roleItems.core);
-           setBoots(roleItems.boots);
-       } catch (error) {
-           console.error('Failed to load role-based items:', error);
-       }
-   };
+
 
 
   // Handler for Auto-Import
