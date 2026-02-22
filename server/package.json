@@ -4,6 +4,7 @@
   "description": "Proxy server for Riot API",
   "main": "proxy.js",
   "scripts": {
+    "build": "npm install",
     "start": "node proxy.js",
     "dev": "nodemon proxy.js"
   },
