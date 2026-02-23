@@ -47,7 +47,7 @@ export default function RankOverviewCard({ tier, rank, lp, wins, losses, winrate
           <img 
             src={getRankIcon(tier)} 
             alt={tier} 
-            className="w-full h-full object-contain p-2 relative z-10"
+            className="w-full h-full object-contain scale-150 relative z-10"
             onError={(e) => {
               e.currentTarget.style.display = 'none';
               e.currentTarget.nextElementSibling?.classList.remove('hidden');
