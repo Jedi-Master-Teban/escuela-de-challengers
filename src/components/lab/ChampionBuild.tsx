@@ -291,7 +291,11 @@ export default function ChampionBuild({ championName, buildData }: ChampionBuild
       setImportLoading(true);
       try {
           const proxyBase = import.meta.env.VITE_PROXY_URL || 'http://localhost:3001';
-          const response = await fetch(`${proxyBase}/api/scrape-builds/${championName.toLowerCase()}/${selectedRole.toLowerCase()}`);
+          // Puppeteer scraping can take 30-60s on the server — give it 90s before giving up
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 90000);
+          const response = await fetch(`${proxyBase}/api/scrape-builds/${championName.toLowerCase()}/${selectedRole.toLowerCase()}`, { signal: controller.signal });
+          clearTimeout(timeoutId);
           const data = await response.json();
           
           if (data.runeIds && data.runeIds.length > 0) {

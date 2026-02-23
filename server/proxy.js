@@ -464,8 +464,11 @@ async function loadRuneData() {
 }
 loadRuneData();
 
-// 6. Scrape Builds (U.GG)
-app.get('/api/scrape-builds/:champion/:role?', checkKey, async (req, res) => {
+// 6. Scrape Builds (U.GG) — No Riot API key needed, just Puppeteer scraping
+app.get('/api/scrape-builds/:champion/:role?', async (req, res) => {
+  // Set server-side timeout so Render doesn't silently hang
+  req.setTimeout(120000);
+  res.setTimeout(120000);
   const { champion, role } = req.params;
   const url = role 
     ? `https://u.gg/lol/champions/${champion}/build/${role}`
