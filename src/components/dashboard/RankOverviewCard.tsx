@@ -22,12 +22,11 @@ export default function RankOverviewCard({ tier, rank, lp, wins, losses, winrate
   const tierColor = tier === 'GOLD' ? 'text-yellow-400' : tier === 'PLATINUM' ? 'text-teal-400' : 'text-gray-400';
   const progressPercent = Math.min(lp, 100);
 
-  // Rank Icon Mapping
-  // Note: specific path to match project structure
+  // Rank Icon Mapping — images live in /public/ranks/ so they're served correctly in production
   const getRankIcon = (tierName: string) => {
     const t = tierName.toUpperCase();
-    if (t === 'UNRANKED') return '/src/assets/icons/ranks/unranked.png';
-    return `/src/assets/icons/ranks/${t.toLowerCase()}.png`;
+    if (t === 'UNRANKED') return '/ranks/unranked.png';
+    return `/ranks/${t.toLowerCase()}.png`;
   };
 
   return (
