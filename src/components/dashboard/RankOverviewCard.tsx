@@ -22,11 +22,13 @@ export default function RankOverviewCard({ tier, rank, lp, wins, losses, winrate
   const tierColor = tier === 'GOLD' ? 'text-yellow-400' : tier === 'PLATINUM' ? 'text-teal-400' : 'text-gray-400';
   const progressPercent = Math.min(lp, 100);
 
-  // Rank Icon Mapping — images live in /public/ranks/ so they're served correctly in production
+  // Rank Icon Mapping — uses CommunityDragon CDN (official Riot assets, no hosting issues)
   const getRankIcon = (tierName: string) => {
-    const t = tierName.toUpperCase();
-    if (t === 'UNRANKED') return '/ranks/unranked.png';
-    return `/ranks/${t.toLowerCase()}.png`;
+    const t = tierName.toLowerCase();
+    if (t === 'unranked') {
+      return 'https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-mini-crests/unranked.png';
+    }
+    return `https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-emblem/emblem-${t}.png`;
   };
 
   return (
