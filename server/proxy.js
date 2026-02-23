@@ -464,489 +464,185 @@ async function loadRuneData() {
 }
 loadRuneData();
 
-// 6. Scrape Builds (U.GG) — No Riot API key needed, just Puppeteer scraping
+// 6. Scrape Builds (U.GG) — axios-first (fast, bypasses bot detection), Puppeteer fallback
 app.get('/api/scrape-builds/:champion/:role?', async (req, res) => {
-  // Set server-side timeout so Render doesn't silently hang
   req.setTimeout(120000);
   res.setTimeout(120000);
   const { champion, role } = req.params;
-  const url = role 
+  const url = role
     ? `https://u.gg/lol/champions/${champion}/build/${role}`
     : `https://u.gg/lol/champions/${champion}/build`;
-  console.log(`[SCRAPE BUILD] Fetching build for ${champion} (${role || 'default'}) from ${url}`);
+  console.log(`[SCRAPE BUILD] ${champion}/${role || 'default'} → ${url}`);
 
+  // ── Helpers (shared between axios and Puppeteer paths) ──────────────────
+
+  // Extract window.__SSR_DATA__ JSON blob from raw HTML string
+  const extractSSRFromHTML = (html) => {
+    const marker = 'window.__SSR_DATA__ =';
+    const idx = html.indexOf(marker);
+    if (idx === -1) { console.log('[SCRAPE BUILD] No __SSR_DATA__ in HTML'); return null; }
+    let braceCount = 0, jsonStart = -1, jsonEnd = -1;
+    for (let i = idx + marker.length; i < html.length; i++) {
+      if (html[i] === '{') { if (braceCount === 0) jsonStart = i; braceCount++; }
+      else if (html[i] === '}') { braceCount--; if (braceCount === 0) { jsonEnd = i + 1; break; } }
+    }
+    if (jsonStart === -1 || jsonEnd === -1) return null;
+    try {
+      const jsonStr = html.substring(jsonStart, jsonEnd);
+      console.log(`[SCRAPE BUILD] SSR JSON length: ${jsonStr.length}`);
+      return JSON.parse(jsonStr);
+    } catch (e) { console.error('[SCRAPE BUILD] SSR JSON parse error:', e.message); return null; }
+  };
+
+  const BOOT_IDS = [1001, 3006, 3009, 3020, 3047, 3111, 3117, 3158];
+
+  // Convert a parsed SSR object into { runeIds, items, itemIds, winrate, role }
+  const extractBuildFromSSR = (parsed, requestedRole) => {
+    const keys = Object.keys(parsed);
+    const buildKey = keys.find(k =>
+      k.includes('overview') && k.includes('ranked_solo_5x5') &&
+      !k.includes('ap-overview') && !k.includes('ad-overview')
+    );
+    if (!buildKey || !parsed[buildKey]?.data) {
+      console.log('[SCRAPE BUILD] No suitable SSR key. Available:', keys.slice(0, 5));
+      return null;
+    }
+    console.log('[SCRAPE BUILD] SSR key:', buildKey);
+    const dynKeys = Object.keys(parsed[buildKey].data);
+    if (!dynKeys.length) return null;
+    const inner = parsed[buildKey].data[dynKeys[0]];
+
+    // Items
+    let finalCore = [], finalBoots = [], allItems = [];
+    if (inner.rec_core_items?.ids) {
+      allItems = [...inner.rec_core_items.ids];
+      finalCore = [...inner.rec_core_items.ids];
+    }
+    if (inner.rec_boots?.ids?.length) {
+      const bootId = inner.rec_boots.ids[0];
+      if (!allItems.includes(bootId)) { allItems.push(bootId); finalBoots.push(bootId); }
+    }
+    ['item_options_1', 'item_options_2', 'item_options_3', 'situational_items'].forEach(key => {
+      const opts = inner[key];
+      if (opts?.ids) opts.ids.forEach(id => { if (!allItems.includes(id)) allItems.push(id); });
+    });
+    allItems = [...new Set(allItems)].filter(id => id > 1000);
+
+    // Auto-detect boots in core if boots array is empty
+    if (!finalBoots.length) {
+      finalBoots = finalCore.filter(id => BOOT_IDS.includes(id));
+      finalCore  = finalCore.filter(id => !BOOT_IDS.includes(id));
+    }
+
+    // Runes
+    let runes = [];
+    if (inner.rec_runes?.active_perks)     runes = [...inner.rec_runes.active_perks];
+    if (inner.stat_shards?.active_shards)  runes = [...runes, ...inner.stat_shards.active_shards];
+    runes = runes.map(Number).filter(id => !isNaN(id));
+
+    const winrate = inner.win_rate ?? inner.rec_core_items?.win_rate ?? 'N/A';
+    const roleMap = { top:'Top', jungle:'Jungle', mid:'Mid', middle:'Mid', adc:'Adc', support:'Support', bot:'Adc', supp:'Support' };
+    const roleFromKey = buildKey.match(/build\/([a-z_-]+)/i)?.[1] ?? null;
+    const detectedRole = requestedRole || (roleFromKey ? (roleMap[roleFromKey.toLowerCase()] ?? roleFromKey) : null);
+
+    return {
+      runeIds: runes,
+      items: { core: [...new Set(finalCore)].filter(id => id > 1000).slice(0, 6), boots: finalBoots, situational: [] },
+      itemIds: allItems,
+      winrate: winrate !== 'N/A' ? `${winrate}% WR` : 'N/A',
+      role: detectedRole,
+    };
+  };
+
+  // ── Strategy 1: Fast axios fetch (no Chrome, ~2-5s) ─────────────────────
+  try {
+    console.log('[SCRAPE BUILD] Trying axios...');
+    const htmlRes = await axios.get(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'none',
+        'Cache-Control': 'max-age=0',
+      },
+      timeout: 20000,
+      maxRedirects: 5,
+    });
+
+    const html = typeof htmlRes.data === 'string' ? htmlRes.data : JSON.stringify(htmlRes.data);
+    console.log(`[SCRAPE BUILD] Axios OK. HTML length: ${html.length}`);
+
+    const parsed = extractSSRFromHTML(html);
+    if (parsed) {
+      const buildData = extractBuildFromSSR(parsed, role);
+      if (buildData?.runeIds?.length) {
+        console.log('[SCRAPE BUILD] Axios success:', JSON.stringify(buildData).substring(0, 200));
+        return res.json(buildData);
+      }
+      console.log('[SCRAPE BUILD] SSR found but extraction empty — trying Puppeteer');
+    } else {
+      console.log('[SCRAPE BUILD] No SSR in axios response — trying Puppeteer');
+    }
+  } catch (axiosErr) {
+    console.warn('[SCRAPE BUILD] Axios failed:', axiosErr.message, '— trying Puppeteer');
+  }
+
+  // ── Strategy 2: Puppeteer fallback (executes JS, ~30-60s) ────────────────
   let browser;
   try {
+    console.log('[SCRAPE BUILD] Launching Puppeteer...');
     browser = await puppeteer.launch({
-      headless: "new",
+      headless: 'new',
       executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
       args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
-      defaultViewport: { width: 1920, height: 1080 }
+      defaultViewport: { width: 1920, height: 1080 },
     });
     const page = await browser.newPage();
-    
-    // Capture browser logs (filtered)
-    page.on('console', msg => {
-        const text = msg.text();
-        if (text.includes('groupEnd') || text.includes('groupStart') || text.includes('console.clear')) return;
-        console.log('[BROWSER]', text);
-    });
-
-    // Optimization
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36');
     await page.setExtraHTTPHeaders({ 'Accept-Language': 'en-US,en;q=0.9' });
-    // await page.setRequestInterception(true);
-    // page.on('request', (req) => {
-    //   // Block metrics/ads but allow essential scripts/images
-    //   const type = req.resourceType();
-    //   if (['stylesheet', 'font', 'media'].includes(type)) req.abort();
-    //   else req.continue();
-    // });
 
     try {
       await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
-      // Wait for ANY rune image -> implies page loaded enough
-      // Wait for build data or script tags to be ready
-      await page.waitForFunction(() => {
-          return document.querySelectorAll('img[src*="runes"], img[src*="perk-images"], img[src*="item"]').length > 5 || 
-                 (window.__SSR_DATA__ && Object.keys(window.__SSR_DATA__).length > 0);
-      }, { timeout: 15000 });
-      
-      // Auto-Scroll Iteratively to trigger lazy loading
-      await page.evaluate(async () => {
-          for (let i = 0; i < 50; i++) {
-              window.scrollBy(0, 300);
-              await new Promise(resolve => setTimeout(resolve, 100));
-          }
-      });
-      // Small wait after scroll
+      await page.waitForFunction(() =>
+        (window.__SSR_DATA__ && Object.keys(window.__SSR_DATA__).length > 0) ||
+        document.querySelectorAll('img[src*="item"]').length > 3,
+        { timeout: 20000 }
+      );
+      // Short settle wait
       await new Promise(r => setTimeout(r, 2000));
-      // Small wait after scroll
-      await new Promise(r => setTimeout(r, 1000));
-
-    } catch (e) {
-      console.error('[SCRAPE BUILD] Navigation failed:', e.message);
+    } catch (navErr) {
+      console.error('[SCRAPE BUILD] Puppeteer navigation failed:', navErr.message);
       await browser.close();
-      return res.status(500).json({ error: 'Failed to load U.GG' });
+      return res.status(500).json({ error: 'Failed to load build page' });
     }
 
-    // Dump HTML for debugging (DISABLED: Triggers Vite Reload)
-    /*
-    try {
-        const content = await page.content();
-        // require('fs').writeFileSync('debug_page.html', content);
-        console.log('[PROXY] Saved debug_page.html');
-    } catch (err) {
-        console.error('[PROXY] Failed to save debug HTML:', err.message);
-    }
-    */
-
-    // Extract SSR Data from Script Tag
-    const ssrData = await page.evaluate(() => {
-        try {
-            const scripts = Array.from(document.scripts);
-            const targetScript = scripts.find(s => s.textContent && s.textContent.includes('window.__SSR_DATA__ ='));
-            
-            if (targetScript) {
-                const content = targetScript.textContent;
-                console.log('Found SSR Script. Length: ' + content.length);
-                console.log('Script Start: ' + content.substring(0, 200));
-                
-                // Regex failed due to nested braces. Use brace counting.
-                const startMarker = 'window.__SSR_DATA__ =';
-                const idx = content.indexOf(startMarker);
-                if (idx !== -1) {
-                    let braceCount = 0;
-                    let jsonStart = -1;
-                    let jsonEnd = -1;
-                    
-                    for (let i = idx + startMarker.length; i < content.length; i++) {
-                        const char = content[i];
-                        if (char === '{') {
-                            if (braceCount === 0) jsonStart = i;
-                            braceCount++;
-                        } else if (char === '}') {
-                            braceCount--;
-                            if (braceCount === 0) {
-                                jsonEnd = i + 1;
-                                break;
-                            }
-                        }
-                    }
-                    
-                    
-                    if (jsonStart !== -1 && jsonEnd !== -1) {
-                        try {
-                            const jsonStr = content.substring(jsonStart, jsonEnd);
-                            console.log('Extracted JSON length: ' + jsonStr.length);
-                            const parsed = JSON.parse(jsonStr);
-                            const keys = Object.keys(parsed);
-                            console.log('SSR Data Keys Count: ' + keys.length);
-                            
-                            // Find relevant key for this champion
-                            // Key format: overview_emerald_plus_world_recommended::https://stats2.u.gg/lol/1.5/overview/16_3/ranked_solo_5x5/103/1.5.0.json
-                            // We need to match the current champion ID from the URL or just find the one with 'overview' and 'ranked_solo_5x5'
-                            
-                            const buildKey = keys.find(k => k.includes('overview') && k.includes('ranked_solo_5x5') && !k.includes('ap-overview') && !k.includes('ad-overview'));
-                            
-                            if (buildKey && parsed[buildKey]) {
-                                console.log('Found Extractable Build Key: ' + buildKey);
-                                const data = parsed[buildKey];
-                                
-                                // data.data is our target object (regions/roles)
-                                if (data.data) {
-                                    const dynKeys = Object.keys(data.data);
-                                    if (dynKeys.length > 0) {
-                                        const inner = data.data[dynKeys[0]];
-                                        
-                                        // Extract Items
-                                        let finalCore = [];
-                                        let finalBoots = [];
-                                        let ssrItems = []; // Temp collector for uniqueness check
-                                        
-                                        // 1. Core Items (Highest priority)
-                                        if (inner.rec_core_items && inner.rec_core_items.ids) {
-                                            console.log('Core Items found:', inner.rec_core_items.ids);
-                                            ssrItems = [...inner.rec_core_items.ids];
-                                            finalCore = [...inner.rec_core_items.ids];
-                                        } else {
-                                            console.log('No Core Items found in rec_core_items');
-                                        }
-                                        
-                                        // 2. Boots (Essential)
-                                        if (inner.rec_boots && inner.rec_boots.ids && inner.rec_boots.ids.length > 0) {
-                                            const bootId = inner.rec_boots.ids[0];
-                                            if (!ssrItems.includes(bootId)) {
-                                                ssrItems.push(bootId);
-                                                finalBoots.push(bootId);
-                                            }
-                                        }
-
-                                        // 3. Option Sets (Filling up to 6+)
-                                        // U.GG usually has item_options_1 (mythic/rush), item_options_2, item_options_3
-                                        ['item_options_1', 'item_options_2', 'item_options_3', 'situational_items'].forEach(key => {
-                                            const options = inner[key];
-                                            if (options && options.ids) {
-                                                console.log(`Found options in ${key}:`, options.ids);
-                                                options.ids.forEach(id => {
-                                                    if (!ssrItems.includes(id)) ssrItems.push(id);
-                                                });
-                                            } else if (Array.isArray(options)) {
-                                                console.log(`Found array options in ${key}:`, options);
-                                                // Sometimes it's an array of objects
-                                                options.forEach(opt => {
-                                                    const id = opt.id || opt;
-                                                    if (id && !ssrItems.includes(id)) {
-                                                        ssrItems.push(id);
-                                                        finalCore.push(id); // Add to core/full build
-                                                    }
-                                                });
-                                            }
-                                        });
-
-                                        // Ensure unique and filtered
-                                        const beforeFilter = ssrItems.length;
-                                        ssrItems = [...new Set(ssrItems)].filter(id => id > 1000); 
-                                        console.log(`Items after merge: ${beforeFilter} -> After filter: ${ssrItems.length}`, ssrItems); 
-
-                                        // Extract Runes
-                                        let ssrRunes = [];
-                                        if (inner.rec_runes && inner.rec_runes.active_perks) {
-                                            ssrRunes = [...inner.rec_runes.active_perks];
-                                        }
-                                        if (inner.stat_shards && inner.stat_shards.active_shards) {
-                                            ssrRunes = [...ssrRunes, ...inner.stat_shards.active_shards];
-                                        }
-
-                                        // Ensure numeric
-                                        ssrRunes = ssrRunes.map(Number).filter(id => !isNaN(id));
-
-                                        // Winrate
-                                        let wr = inner.win_rate || (inner.rec_core_items ? inner.rec_core_items.win_rate : 'N/A');
-
-                                        return {
-                                            items: {
-                                                core: [...new Set(finalCore)].filter(id => id > 1000).slice(0, 6), // Limit to 6 items max for core
-                                                boots: finalBoots,
-                                                situational: [] // We merged everything into core for "Full Build" view
-                                            },
-                                            runes: ssrRunes,
-                                            winrate: wr
-                                        };
-                                    }
-                                }
-                            }
-                            return null;
-                        } catch (e) {
-                            console.error('JSON Parse error:', e.message);
-                        }
-                    }
-                }
-            }
-        } catch (e) {
-            console.error('Failed to parse SSR script:', e);
-        }
-        return null;
-    });
-
-    let finalItems = { core: [], boots: [], situational: [] };
-    let finalRuneIds = [];
-    let finalWinrate = 'N/A';
-
-    if (ssrData && ssrData.items && ssrData.runes) {
-        console.log('[PROXY] Using SSR Data for Build');
-        finalItems = ssrData.items; // Already structured as {core, boots, situational}
-        finalRuneIds = ssrData.runes;
-        finalWinrate = ssrData.winrate ? `${ssrData.winrate}% WR` : 'N/A';
-        
-        // Post-process: auto-detect boots in core array if boots is empty
-        // Known boot item IDs in League of Legends
-        const BOOT_IDS = [
-            1001, // Boots
-            3006, // Berserker's Greaves
-            3009, // Boots of Swiftness
-            3020, // Sorcerer's Shoes
-            3047, // Plated Steelcaps
-            3111, // Mercury's Treads
-            3117, // Mobility Boots
-            3158, // Ionian Boots of Lucidity
-        ];
-        
-        if (finalItems.boots.length === 0) {
-            const bootsInCore = finalItems.core.filter(id => BOOT_IDS.includes(id));
-            if (bootsInCore.length > 0) {
-                finalItems.boots = bootsInCore;
-                finalItems.core = finalItems.core.filter(id => !BOOT_IDS.includes(id));
-                console.log(`[PROXY] Moved ${bootsInCore.length} boot(s) from core to boots:`, bootsInCore);
-            }
-        }
-    } else {
-        console.log('[PROXY] SSR Data missing or incomplete, falling back to DOM (legacy)');
-    }
-    
-    // Legacy DOM Access (only if SSR failed, or to supplement)
-    // We will overwrite rawBuildData with SSR data if available
-    
-    const domBuildData = await page.evaluate(() => {
-        // ... (Existing DOM logic, can stay as is for now)
-        return {}; // Return empty to prevent conflict if we use SSR
-    });
-
-    if (ssrData && ssrData.items) {
-          // Detect the actual role from the final page URL
-          let detectedRole = role || null;
-          try {
-            const finalUrl = page.url();
-            // U.GG URLs: /lol/champions/{champ}/build/{role}  or  /lol/champions/{champ}/build
-            const roleMatch = finalUrl.match(/\/build\/([a-z_-]+)/i);
-            if (roleMatch && roleMatch[1]) {
-              const roleMap = {
-                'top': 'Top', 'jungle': 'Jungle', 'mid': 'Mid', 'middle': 'Mid',
-                'adc': 'Adc', 'support': 'Support', 'bot': 'Adc', 'supp': 'Support'
-              };
-              detectedRole = roleMap[roleMatch[1].toLowerCase()] || roleMatch[1];
-            }
-          } catch (e) {
-            console.warn('[PROXY] Could not detect role from URL');
-          }
-
-          const response = {
-            runeIds: finalRuneIds,
-            items: finalItems,
-            itemIds: [...(finalItems.core || []), ...(finalItems.boots || []), ...(finalItems.situational || [])],
-            winrate: finalWinrate,
-            role: detectedRole,
-          };
-          console.log('[SCRAPE BUILD] Helper Success (SSR):', response);
-          await browser.close();
-          return res.json(response);
-    }
-    
-    const rawBuildData = await page.evaluate(() => {
-        // --- RUNES ---
-        // Robust active check: check element and parents for 'active' or 'perk-active'
-        const isNodeActive = (node) => {
-            if (!node) return false;
-            if (node.classList && (
-                node.classList.contains('active') || 
-                node.classList.contains('perk-active') || 
-                node.classList.contains('rune-active') || 
-                node.classList.contains('shard-active') ||
-                node.classList.contains('selected-shard')
-            )) return true;
-            return false;
-        };
-
-        const getAllActivePerks = () => {
-             // Grab every possible rune image (U.GG uses runes/ or perk-images/)
-             const allPerkImages = Array.from(document.querySelectorAll('img[src*="runes"], img[src*="perk-images"], img[src*="/Styles/"], img[src*="Runes"]'));
-             
-             return allPerkImages.filter(img => {
-                 // Check img, parent, grandparent, great-grandparent
-                 let curr = img;
-                 for (let i = 0; i < 4; i++) {
-                     if (isNodeActive(curr)) return true;
-                     curr = curr.parentElement;
-                     if (!curr) break;
-                 }
-                 const shardContainer = img.closest('.stat-shards-container') || img.closest('.shards-container');
-                 if (shardContainer) {
-                     return false; 
-                 }
-                 return false;
-             });
-        };
-        
-        let activePerkImgs = getAllActivePerks();
-
-        // Fallback for Shards if we missed them
-        const shardContainer = document.querySelector('.stat-shards-container') || document.querySelector('.shards-container');
-        if (shardContainer) {
-             const shardImgs = Array.from(shardContainer.querySelectorAll('img'));
-             const activeShards = shardImgs.filter(img => {
-                 let curr = img;
-                 for(let i=0; i<4; i++) {
-                     if(curr && isNodeActive(curr)) return true;
-                     curr = curr.parentElement;
-                 }
-                 return false;
-             });
-             
-             if (activeShards.length > 0) {
-                 activeShards.forEach(s => {
-                     if (!activePerkImgs.includes(s)) activePerkImgs.push(s);
-                 });
-             }
-        }
-        
-        // Remove duplicates
-        activePerkImgs = [...new Set(activePerkImgs)];
-
-        const runeFilenames = activePerkImgs.map(img => {
-            const parts = img.src.split('/');
-            return parts[parts.length - 1]; 
-        });
-
-        // --- ITEMS ---
-        const allItemImgs = Array.from(document.querySelectorAll('img[src*="/item/"]'));
-        const allItemDivs = Array.from(document.querySelectorAll('div[style*="/item/"]'));
-
-        const extractIdFromSrc = (src) => {
-             const match = src.match(/\/item\/(\d+)\.png/);
-             return match ? parseInt(match[1]) : null;
-        };
-
-        const extractIdFromStyle = (style) => {
-             const match = style.match(/\/item\/(\d+)\.png/);
-             return match ? parseInt(match[1]) : null;
-        };
-        
-        const STARTING_ITEMS_IDS = [
-            1056, // Doran's Ring
-            1055, // Doran's Blade
-            1054, // Doran's Shield
-            2003, // Health Potion
-            2031, // Refillable Potion
-            2033, // Corrupting Potion
-            3340, // Warding Totem
-            3364, // Oracle Lens
-            3363, // Farsight Alteration
-            1083, // Cull
-        ];
-
-        const distinctItemIds = new Set();
-        const validItems = [];
-
-        // Helper to process element
-        const processElement = (el, id) => {
-            if (!id) return;
-            if (STARTING_ITEMS_IDS.includes(id)) return;
-
-            const box = el.closest('div'); 
-            const headerBox = el.closest('.content-section');
-            const boxText = (box ? box.innerText : '') + (headerBox ? headerBox.innerText : '');
-            
-            if (boxText.includes('Starting Items') || boxText.includes('Potions') || boxText.includes('Trinket')) return;
-            
-            if (!distinctItemIds.has(id)) {
-                distinctItemIds.add(id);
-                validItems.push(id);
-            }
-        };
-
-        // Process IMGs
-        for (const img of allItemImgs) {
-            processElement(img, extractIdFromSrc(img.src));
-        }
-
-        // Process DIVs (Background Images)
-        console.log('--- START STYLE DEBUG ---');
-        console.log('Total DIVs with style*="/item/": ' + allItemDivs.length);
-        
-        // Debug: Log all divs with background to see patterns
-        const dbgDivs = Array.from(document.querySelectorAll('div[style*="background"]'));
-        console.log('Total DIVs with background style: ' + dbgDivs.length);
-        // Check unfiltered styles
-        console.log('--- START UNFILTERED STYLE DEBUG ---');
-        for (const div of dbgDivs) {
-            const style = div.getAttribute('style');
-            if (style) {
-                 console.log('Style Attribute: ' + style);
-                 const id = extractIdFromStyle(style);
-                 if (id) {
-                     console.log('Found ID in style: ' + id);
-                     processElement(div, id);
-                 }
-            }
-        }
-        console.log('--- END UNFILTERED STYLE DEBUG ---');
-        
-        const uniqueItemIds = validItems.slice(0, 6);
-
-        const winrateEl = document.querySelector('.win-rate .value') || document.querySelector('.win-rate');
-        let winrate = winrateEl ? winrateEl.innerText : null;
-        if (winrate && winrate.includes('%')) {
-            winrate = winrate.trim();
-        }
-
-        return {
-            runeFilenames,
-            itemIds: uniqueItemIds,
-            winrate
-        };
-    });
-
+    // Extract SSR data from the live DOM
+    const html = await page.content();
     await browser.close();
 
-    // Resolve IDs using server-side map
-    // Resolve IDs using server-side map + numeric fallback
-    const runeIds = (rawBuildData.runeFilenames || []).map(filename => {
-        // 1. Try Map
-        if (runeIconMap[filename]) return runeIconMap[filename];
-        // 2. Try numeric extraction (e.g., "8000.png" -> 8000)
-        const numeric = parseInt(filename);
-        if (!isNaN(numeric) && numeric > 100) return numeric;
-        return undefined;
-    }).filter(id => id !== undefined);
-    
-    const uniqueRuneIds = [...new Set(runeIds)];
+    const parsed = extractSSRFromHTML(html);
+    if (parsed) {
+      const buildData = extractBuildFromSSR(parsed, role);
+      if (buildData?.runeIds?.length) {
+        console.log('[SCRAPE BUILD] Puppeteer success:', JSON.stringify(buildData).substring(0, 200));
+        return res.json(buildData);
+      }
+    }
 
-    const responseData = {
-        runeIds: uniqueRuneIds,
-        itemIds: rawBuildData.itemIds,
-        winrate: rawBuildData.winrate,
-        debugFilenames: rawBuildData.runeFilenames
-    };
-
-    console.log('[SCRAPE BUILD] Success:', responseData);
-    res.json(responseData);
+    console.log('[SCRAPE BUILD] Both strategies failed to extract build data');
+    return res.status(500).json({ error: 'No build data found' });
 
   } catch (error) {
-    console.error('[SCRAPE BUILD] Error:', error.message);
+    console.error('[SCRAPE BUILD] Puppeteer error:', error.message);
     if (browser) await browser.close();
-    res.status(500).json({ error: 'Scraping failed' });
+    return res.status(500).json({ error: 'Scraping failed' });
   }
-});
+}); // end app.get('/api/scrape-builds/...')
 
 app.listen(PORT, () => {
   console.log(`[PROXY] Server running on http://localhost:${PORT}`);
