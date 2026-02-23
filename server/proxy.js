@@ -28,7 +28,10 @@ app.use(cors({
     // Allow requests with no origin (curl, Render health checks, etc.)
     if (!origin) return callback(null, true);
     const normalized = origin.replace(/\/$/, '');
-    if (allowedOrigins.includes(normalized)) {
+    // Accept exact matches OR any Vercel preview URL for this project
+    const isVercelPreview = normalized.match(/^https:\/\/escuela-de-challengers.*\.vercel\.app$/) ||
+                            normalized.match(/^https:\/\/.*jedi-master-tebans-projects\.vercel\.app$/);
+    if (allowedOrigins.includes(normalized) || isVercelPreview) {
       callback(null, true);
     } else {
       console.warn(`[CORS] Blocked origin: ${origin}`);
