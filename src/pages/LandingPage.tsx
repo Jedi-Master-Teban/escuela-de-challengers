@@ -1,8 +1,11 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import parallaxBg from '../assets/parallax_bg.png';
 import { useParallax } from '../hooks/useParallax';
+
+// Lazy-load Three.js particles so they don't block initial page paint
+const HextechParticles = lazy(() => import('../components/landing/HextechParticles'));
 
 // Hextech Icons (SVG components)
 const VideoIcon = () => (
@@ -139,13 +142,15 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <section ref={heroRef} className="relative min-h-screen flex items-center justify-center pt-16 overflow-hidden z-10">
-        {/* Hero specific overlays */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-hextech-black/20 to-hextech-black/70" />
-        <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_50%_50%,rgba(200,170,110,0.2),transparent_60%)]" />
-        
-        {/* Animated glow orbs */}
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-hextech-gold/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        {/* Hero overlays — darken edges so text stays readable over new detailed bg */}
+        <div className="absolute inset-0 bg-gradient-to-b from-hextech-black/60 via-hextech-black/20 to-hextech-black/80" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_40%,rgba(0,224,255,0.06),transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_40%,rgba(200,153,110,0.08),transparent_50%)]" />
+
+        {/* Three.js particle field */}
+        <Suspense fallback={null}>
+          <HextechParticles />
+        </Suspense>
 
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
           {/* Hextech Badge */}
